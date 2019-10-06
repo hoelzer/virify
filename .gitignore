@@ -4,6 +4,13 @@
 # Log file
 *.log
 
+nextflow-autodownload-databases/
+results/
+work/
+virify.code-workspace
+wip/
+.nextflow/
+
 # BlueJ files
 *.ctxt
 
