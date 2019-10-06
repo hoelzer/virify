@@ -138,16 +138,6 @@ if (!params.nano && params.illumina) {
 }
 
 
-
-
-
-
-
-
-
-
-=======
->>>>>>> parent of c6d3749... implement initial pipeline steps
 /************************** 
 * NANOPORE ONLY WORKFLOW
 **************************/
