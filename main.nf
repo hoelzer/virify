@@ -72,6 +72,11 @@ It also comes with a "auto-download" if a database is not available. Doing it th
 4. if nothing is true -> download the DB and store it in the "preload" section (either cloud or local for step 3.)
 */
 
+// get Virsorter Database
+include 'modules/virsorterGetDB'
+virsorterGetDB() 
+database_virsorter = virsorterGetDB.out
+
 /*
     // sourmash database
         // set cloud preload to empty
@@ -106,19 +111,23 @@ if (!params.nano && params.illumina) {
     include 'modules/fastqc'
     include 'modules/multiqc' params(output: params.output, readQCdir: params.readQCdir)
     include 'modules/spades' params(output: params.output, assemblydir: params.assemblydir, memory: params.memory)
+    include 'modules/virsorter' params(output: params.output)
+    include 'modules/virfinder' params(output: params.output)
 
     // Workflow            
         // trimming --> fastp
         fastp(illumina_input_ch)
-        fastp.out.view()
-
+ 
         // read QC --> fastqc/multiqc?
-        //multiqc(fastqc(fastp.out))
+        multiqc(fastqc(fastp.out))
 
         // assembly with asembler choice --> metaSPAdes
-        //spades(fastp.out)//; assemblerOutput = spades.out[0]
+        if (params.assemblerLong == 'spades') { spades(fastp.out) ; assemblerOutput = spades.out }
 
         // virus detection --> VirSorter and VirFinder
+        virsorter(spades.out, database_virsorter)
+        virfinder(spades.out)
+
 
         // ORF detection --> prodigal
 
@@ -232,7 +241,7 @@ def helpMSG() {
     ${c_yellow}Options:${c_reset}
     --cores             max cores for local use [default: $params.cores]
     --output            name of the result folder [default: $params.output]
-    --assemblerLong     long-read assembly tool used [flye | shasta, default: $params.assemblerLong]
+    --assemblerLong     long-read assembly tool used [spades, default: $params.assemblerLong]
 
     ${c_yellow}Parameters:${c_reset}
 

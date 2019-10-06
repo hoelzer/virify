@@ -1,9 +1,9 @@
 process fastqc {
     label 'fastqc'  
   input:
-    set val(name), file(r1), file(r2)
+    set val(name), file(reads)
   output:
-    set val(name), file("${name}.R1_fastqc.html"), file("${name}.R2_fastqc.html"), file("${name}.R1_fastqc.zip"), file("${name}.R2_fastqc.zip")
+    set val(name), file("fastqc/${name}*fastqc*")
   script:
     """
     mkdir fastqc
