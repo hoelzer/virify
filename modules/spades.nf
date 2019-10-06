@@ -4,7 +4,7 @@ process spades {
   input:
     set val(name), file(reads)
   output:
-    set val(name), file(reads), file("${name}.fasta")
+    set val(name), file("${name}.fasta")
   script:
     """
     metaspades.py -1 ${reads[0]} -2 ${reads[1]} -t ${task.cpus} -m ${params.memory} -o assembly

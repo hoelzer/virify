@@ -2,8 +2,8 @@
 nextflow.preview.dsl=2
 
 /*
-* Nextflow -- Virus Analysis Pipeline
-* Author: hoelzer.martin@gmail.com
+* Nextflow -- Analysis Pipeline
+* Author: christian.jena@gmail.com
 */
 
 /************************** 
@@ -72,12 +72,15 @@ It also comes with a "auto-download" if a database is not available. Doing it th
 4. if nothing is true -> download the DB and store it in the "preload" section (either cloud or local for step 3.)
 */
 
+<<<<<<< HEAD
 // get Virsorter Database
 include 'modules/virsorterGetDB'
 virsorterGetDB() 
 database_virsorter = virsorterGetDB.out
 
 /*
+=======
+>>>>>>> parent of c6d3749... implement initial pipeline steps
     // sourmash database
         // set cloud preload to empty
         sour_db_preload = ''
@@ -92,6 +95,7 @@ database_virsorter = virsorterGetDB.out
                     sourmash_download_db() 
                     database_sourmash = sourmash_download_db.out } 
 
+<<<<<<< HEAD
 */
 
 
@@ -111,8 +115,8 @@ if (!params.nano && params.illumina) {
     include 'modules/fastqc'
     include 'modules/multiqc' params(output: params.output, readQCdir: params.readQCdir)
     include 'modules/spades' params(output: params.output, assemblydir: params.assemblydir, memory: params.memory)
-    include 'modules/virsorter' params(output: params.output)
-    include 'modules/virfinder' params(output: params.output)
+    include 'modules/virsorter' params(output: params.output, virusdir: params.virusdir)
+    include 'modules/virfinder' params(output: params.output, virusdir: params.virusdir)
 
     // Workflow            
         // trimming --> fastp
@@ -144,6 +148,8 @@ if (!params.nano && params.illumina) {
 
 
 
+=======
+>>>>>>> parent of c6d3749... implement initial pipeline steps
 /************************** 
 * NANOPORE ONLY WORKFLOW
 **************************/
@@ -166,7 +172,6 @@ https://academic.oup.com/nar/article/47/11/e63/5377471
 if (params.nano && !params.illumina) {
 
     // modules
-    /*
         include 'modules/bandage' params(output: params.output, assemblydir: params.assemblydir)
         include 'modules/busco' params(output: params.output)
         include 'modules/filtlong'
@@ -179,9 +184,6 @@ if (params.nano && !params.illumina) {
         include 'modules/shasta' params(output: params.output, gsize: params.gsize)
         include 'modules/sourclass' params(output: params.output)
 
-    */
-
-    /*    
     // Workflow
         // trimming and QC of trimmed reads
             filtlong(nano_input_ch)
@@ -196,11 +198,44 @@ if (params.nano && !params.illumina) {
             sourclass(medaka.out, database_sourmash)
         // assembly graph
             bandage(graphOutput)
+        // annotation
+            /* see here: https://galaxyproject.github.io/training-material/topics/genome-annotation/tutorials/annotation-with-maker/tutorial.html
+             augustus
+             get or include more models to predict the genes
+            */
         // busco “Mode”: Genome “Lineage”: fungi_odb9
             busco(medaka.out)    
-    */                 
+                 
 }
 
+/************************** 
+* ILLUMINA ONLY WORKFLOW
+**************************/
+
+/* Comment section:
+
+
+*/
+
+if (!params.nano && params.illumina) {
+
+    // modules
+
+
+    // Workflow
+        // read QC
+            
+        // trimming
+            
+        // assembly with asembler choice
+            
+        // polishing 
+
+        // tax. classification
+
+        // assembly graph
+
+}
 
 /************************** 
 * HYBRID WORKFLOW
@@ -228,10 +263,10 @@ def helpMSG() {
     log.info """
     ____________________________________________________________________________________________
     
-    VIRify: virus detection from metagenomic data
+    Product: Reconstruct strains for eukaryotic cells
     
     ${c_yellow}Usage example:${c_reset}
-    nextflow run main.nf --illumina '*/*.fastq' 
+    nextflow run wf_reconstruct-strains_eukaryotic --nano '*/*.fastq' 
 
     ${c_yellow}Input:${c_reset}
     ${c_green} --nano ${c_reset}            '*.fasta' or '*.fastq.gz'   -> one sample per file
@@ -244,6 +279,7 @@ def helpMSG() {
     --assemblerLong     long-read assembly tool used [spades, default: $params.assemblerLong]
 
     ${c_yellow}Parameters:${c_reset}
+    --gsize             estimated genome size [default: $params.gsize]
 
     ${c_dim}Nextflow options:
     -with-report rep.html    cpu / ram usage (may cause errors)
