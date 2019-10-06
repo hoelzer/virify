@@ -72,7 +72,6 @@ It also comes with a "auto-download" if a database is not available. Doing it th
 4. if nothing is true -> download the DB and store it in the "preload" section (either cloud or local for step 3.)
 */
 
-<<<<<<< HEAD
 // get Virsorter Database
 include 'modules/virsorterGetDB'
 virsorterGetDB() 
@@ -95,7 +94,6 @@ database_virsorter = virsorterGetDB.out
                     sourmash_download_db() 
                     database_sourmash = sourmash_download_db.out } 
 
-<<<<<<< HEAD
 */
 
 

@@ -1,5 +1,5 @@
 process virfinder {
-      publishDir "${params.output}/${name}/${params.virusidr}/virfinder", mode: 'copy', pattern: "${name}.txt"
+      publishDir "${params.output}/${name}/${params.virusdir}/virfinder", mode: 'copy', pattern: "${name}.txt"
       label 'virfinder'
     input:
       set val(name), file(fasta) 
