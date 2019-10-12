@@ -117,12 +117,12 @@ if (params.fasta) {
 
     // modules
     include 'modules/virsorter' params(output: params.output, virusdir: params.virusdir)
-    include 'modules/virfinder' params(output: params.output, virusdir: params.virusdir)
+    //include 'modules/virfinder' params(output: params.output, virusdir: params.virusdir)
 
     // Workflow            
         // virus detection --> VirSorter and VirFinder
         virsorter(fasta_input_ch, database_virsorter)
-        virfinder(fasta_input_ch)
+        //virfinder(fasta_input_ch)
 
         // ORF detection --> prodigal
 
@@ -165,7 +165,8 @@ if (!params.nano && params.illumina) {
         multiqc(fastqc(fastp.out))
 
         // assembly with asembler choice --> metaSPAdes
-        if (params.assemblerLong == 'spades') { spades(fastp.out) ; assemblerOutput = spades.out }
+        spades(fastp.out)
+        assemblerOutput = spades.out
 
         // virus detection --> VirSorter and VirFinder
         virsorter(spades.out, database_virsorter)
@@ -292,10 +293,10 @@ def helpMSG() {
     log.info """
     ____________________________________________________________________________________________
     
-    Product: Reconstruct strains for eukaryotic cells
+    VIRify
     
     ${c_yellow}Usage example:${c_reset}
-    nextflow run wf_reconstruct-strains_eukaryotic --nano '*/*.fastq' 
+    nextflow run main.nf --nano '*/*.fastq' 
 
     ${c_yellow}Input:${c_reset}
     ${c_green} --nano ${c_reset}              '*.fasta' or '*.fastq.gz'   -> one sample per file
