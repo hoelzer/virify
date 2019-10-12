@@ -34,7 +34,7 @@ add csv instead. name,path   or name,pathR1,pathR2 in case of illumina
         if (params.help) { exit 0, helpMSG() }
         if (params.profile) {
             exit 1, "--profile is WRONG use -profile" }
-        if (params.nano == '' &&  params.illumina == '' ) {
+        if (params.nano == '' &&  params.illumina == '' &&  params.fasta == '' ) {
             exit 1, "input missing, use [--nano] or [--illumina]"}
 
     // nanopore reads input & --list support
@@ -58,6 +58,16 @@ add csv instead. name,path   or name,pathR1,pathR2 in case of illumina
                 .fromFilePairs( params.illumina , checkIfExists: true )
                 .view() }
     
+    // direct fasta input w/o assembly support & --list support
+        if (params.fasta && params.list) { fasta_input_ch = Channel
+                .fromPath( params.fasta, checkIfExists: true )
+                .splitCsv()
+                .map { row -> ["${row[0]}", file("${row[1]}")] }
+                .view() }
+        else if (params.fasta) { fasta_input_ch = Channel
+                .fromPath( params.fasta, checkIfExists: true)
+                .map { file -> tuple(file.baseName, file) }
+                .view() }
 
 
 /************************** 
@@ -78,8 +88,6 @@ virsorterGetDB()
 database_virsorter = virsorterGetDB.out
 
 /*
-=======
->>>>>>> parent of c6d3749... implement initial pipeline steps
     // sourmash database
         // set cloud preload to empty
         sour_db_preload = ''
@@ -95,6 +103,39 @@ database_virsorter = virsorterGetDB.out
                     database_sourmash = sourmash_download_db.out } 
 
 */
+
+
+
+/************************** 
+* NO ASSEMBLY ONLY DETECTION WORKFLOW
+**************************/
+
+/* Comment section:
+*/
+
+if (params.fasta) {
+
+    // modules
+    include 'modules/virsorter' params(output: params.output, virusdir: params.virusdir)
+    include 'modules/virfinder' params(output: params.output, virusdir: params.virusdir)
+
+    // Workflow            
+        // virus detection --> VirSorter and VirFinder
+        virsorter(fasta_input_ch, database_virsorter)
+        virfinder(fasta_input_ch)
+
+        // ORF detection --> prodigal
+
+        // annotation --> hmmer
+
+}
+
+
+
+
+
+
+
 
 
 /************************** 
@@ -257,8 +298,9 @@ def helpMSG() {
     nextflow run wf_reconstruct-strains_eukaryotic --nano '*/*.fastq' 
 
     ${c_yellow}Input:${c_reset}
-    ${c_green} --nano ${c_reset}            '*.fasta' or '*.fastq.gz'   -> one sample per file
-    ${c_green} --illumina ${c_reset}        '*.R{1,2}.fastq.gz'         -> file pairs
+    ${c_green} --nano ${c_reset}              '*.fasta' or '*.fastq.gz'   -> one sample per file
+    ${c_green} --illumina ${c_reset}          '*.R{1,2}.fastq.gz'         -> file pairs
+    ${c_green} --fasta ${c_reset}             '*.fasta'                   -> one sample per file, no assembly produced
     ${c_dim}  ..change above input to csv:${c_reset} ${c_green}--list ${c_reset}            
 
     ${c_yellow}Options:${c_reset}
