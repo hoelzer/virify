@@ -87,15 +87,21 @@ It also comes with a "auto-download" if a database is not available. Doing it th
 // set cloud preload to empty
 virsorter_db_preload = ''
 // put user input or cloud preload into the database channel
-if (params.virsorter_db) { database_virsorter = file(params.virsorter_db }
-        else if (workflow.profile == 'googlegenomics' && (params.fasta)) {
-                virsorter_db_preload = file("gs://databases-matrice/databases/virsorter/") }
-        if (workflow.profile == 'googlegenomics' && virsorter_db_preload.exists()) { database_virsorter = virsorter_db_preload }    
-        // if preload and user input not present download the database
-        if (!params.virsorter_db && !virsorter_db_preload && params.fasta) {
-            include 'modules/virsorterGetDB'
-            virsorterGetDB() 
-            database_virsorter = virsorterGetDB.out } 
+if (params.virsorter_db) { 
+    database_virsorter = file(params.virsorter_db)
+}
+else if (workflow.profile == 'googlegenomics' && (params.fasta)) {
+    virsorter_db_preload = file("gs://databases-matrice/databases/virsorter/virsorter-data")
+}
+if (workflow.profile == 'googlegenomics' && virsorter_db_preload.exists()) {
+    database_virsorter = virsorter_db_preload 
+}    
+// if preload and user input not present download the database
+if (!params.virsorter_db && !virsorter_db_preload.exists() && (params.fasta)) {
+    include 'modules/virsorterGetDB'
+    virsorterGetDB() 
+    database_virsorter = virsorterGetDB.out 
+} 
 
 
 /************************** 
