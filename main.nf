@@ -82,28 +82,20 @@ It also comes with a "auto-download" if a database is not available. Doing it th
 4. if nothing is true -> download the DB and store it in the "preload" section (either cloud or local for step 3.)
 */
 
+// CURRENTLY ONLY WORKS FOR FASTA INPUT
 // get Virsorter Database
-include 'modules/virsorterGetDB'
-virsorterGetDB() 
-database_virsorter = virsorterGetDB.out
-
-/*
-    // sourmash database
-        // set cloud preload to empty
-        sour_db_preload = ''
-        // put user input or cloud preload into the database channel
-        if (params.sour_db) { database_sourmash = file(params.sour_db) }
-        else if (workflow.profile == 'googlegenomics' && (params.nano)) {
-                sour_db_preload = file("gs://databases-nextflow/databases/sourmash/genbank-k31.lca.json") }
-        if (workflow.profile == 'googlegenomics' && sour_db_preload.exists()) { database_sourmash = sour_db_preload }    
+// set cloud preload to empty
+virsorter_db_preload = ''
+// put user input or cloud preload into the database channel
+if (params.virsorter_db) { database_virsorter = file(params.virsorter_db }
+        else if (workflow.profile == 'googlegenomics' && (params.fasta)) {
+                virsorter_db_preload = file("gs://databases-matrice/databases/virsorter/") }
+        if (workflow.profile == 'googlegenomics' && virsorter_db_preload.exists()) { database_virsorter = virsorter_db_preload }    
         // if preload and user input not present download the database
-        if (!params.sour_db && !sour_db_preload && params.nano) {
-                    include 'modules/sourmashgetdatabase'
-                    sourmash_download_db() 
-                    database_sourmash = sourmash_download_db.out } 
-
-*/
-
+        if (!params.virsorter_db && !virsorter_db_preload && params.fasta) {
+            include 'modules/virsorterGetDB'
+            virsorterGetDB() 
+            database_virsorter = virsorterGetDB.out } 
 
 
 /************************** 
@@ -311,6 +303,7 @@ def helpMSG() {
 
     ${c_yellow}Parameters:${c_reset}
     --gsize             estimated genome size [default: $params.gsize]
+    --virsorter         a virsorter database [default: $params.virsorter_db]
 
     ${c_dim}Nextflow options:
     -with-report rep.html    cpu / ram usage (may cause errors)

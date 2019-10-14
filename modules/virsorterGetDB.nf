@@ -1,5 +1,6 @@
 process virsorterGetDB {
-        storeDir 'nextflow-autodownload-databases/virsorter'
+        if (workflow.profile == 'googlegenomics') { publishDir 'gs://databases-matrice/databases/virsorter', mode: 'copy', pattern: "virsorter-data" }
+        else { storeDir 'nextflow-autodownload-databases/virsorter' }  
         label 'virsorter'    
       output:
         file("virsorter-data")
