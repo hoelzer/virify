@@ -85,7 +85,7 @@ It also comes with a "auto-download" if a database is not available. Doing it th
 // CURRENTLY ONLY WORKS FOR FASTA INPUT
 // get Virsorter Database
 // set cloud preload to empty
-virsorter_db_preload = ''
+virsorter_db_preload = file('dummy')
 // put user input or cloud preload into the database channel
 if (params.virsorter_db) { 
     database_virsorter = file(params.virsorter_db)
