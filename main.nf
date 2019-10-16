@@ -304,6 +304,7 @@ def helpMSG() {
 
     ${c_yellow}Options:${c_reset}
     --cores             max cores for local use [default: $params.cores]
+    --memory            max memory for local use [default: $params.memory]
     --output            name of the result folder [default: $params.output]
     --assemblerLong     long-read assembly tool used [spades, default: $params.assemblerLong]
 
