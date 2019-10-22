@@ -2,8 +2,8 @@
 nextflow.preview.dsl=2
 
 /*
-* Nextflow -- Analysis Pipeline
-* Author: christian.jena@gmail.com
+* Nextflow -- Virus Analysis Pipeline
+* Author: hoelzer.martin@gmail.com
 */
 
 /************************** 
@@ -234,35 +234,6 @@ if (params.nano && !params.illumina) {
         // busco “Mode”: Genome “Lineage”: fungi_odb9
             busco(medaka.out)    
                  
-}
-
-/************************** 
-* ILLUMINA ONLY WORKFLOW
-**************************/
-
-/* Comment section:
-
-
-*/
-
-if (!params.nano && params.illumina) {
-
-    // modules
-
-
-    // Workflow
-        // read QC
-            
-        // trimming
-            
-        // assembly with asembler choice
-            
-        // polishing 
-
-        // tax. classification
-
-        // assembly graph
-
 }
 
 /************************** 
