@@ -35,7 +35,11 @@ add csv instead. name,path   or name,pathR1,pathR2 in case of illumina
         if (params.profile) {
             exit 1, "--profile is WRONG use -profile" }
         if (params.nano == '' &&  params.illumina == '' &&  params.fasta == '' ) {
-            exit 1, "input missing, use [--nano] or [--illumina]"}
+            exit 1, "input missing, use [--nano] or [--illumina] or [--fasta]"}
+
+/************************** 
+* INPUT CHANNELS 
+**************************/
 
     // nanopore reads input & --list support
         if (params.nano && params.list) { nano_input_ch = Channel
@@ -69,6 +73,28 @@ add csv instead. name,path   or name,pathR1,pathR2 in case of illumina
                 .map { file -> tuple(file.baseName, file) }
                 .view() }
 
+/************************** 
+* MODULES
+**************************/
+
+/* Comment section: */
+
+include './modules/virsorterGetDB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
+include './modules/virsorter' params(output: params.output, virusdir: params.virusdir)
+
+/*include './modules/fastp'
+include './modules/virfinder' params(output: params.output, virusdir: params.virusdir)
+include './modules/fastqc'
+include './modules/multiqc' params(output: params.output, readQCdir: params.readQCdir)
+include './modules/spades' params(output: params.output, assemblydir: params.assemblydir, memory: params.memory)
+include './modules/filtlong'
+include './modules/flye' params(output: params.output, gsize: params.gsize)
+include './modules/medaka' params(output: params.output, model: params.model, assemblydir: params.assemblydir)
+include './modules/minimap2'
+include './modules/nanoplot' params(output: params.output)
+include './modules/racon'
+include './modules/shasta' params(output: params.output, gsize: params.gsize)
+*/
 
 /************************** 
 * DATABASES
@@ -76,50 +102,36 @@ add csv instead. name,path   or name,pathR1,pathR2 in case of illumina
 
 /* Comment section:
 The Database Section is designed to "auto-get" pre prepared databases.
-It is written for local use and cloud use.
-It also comes with a "auto-download" if a database is not available. Doing it the following way:
-1. take userinput DB 2. add a cloud preload DB if cloud profile 3. check if the preload file exists (local or cloud)
-4. if nothing is true -> download the DB and store it in the "preload" section (either cloud or local for step 3.)
-*/
+It is written for local use and cloud use.*/
 
-// CURRENTLY ONLY WORKS FOR FASTA INPUT
-// get Virsorter Database
-// set cloud preload to empty
-virsorter_db_preload = file('dummy')
-// put user input or cloud preload into the database channel
-if (params.virsorter_db) { 
-    database_virsorter = file(params.virsorter_db)
+
+workflow download_virsorter_db {
+    main:
+    // local storage via storeDir
+    if (!params.cloudProcess) { virsorterGetDB(); db = virsorterGetDB.out }
+    // cloud storage via db_preload.exists()
+    if (params.cloudProcess) {
+      db_preload = file("${params.cloudDatabase}/databases/virsorter/virsorter-data")
+      if (db_preload.exists()) { db = db_preload }
+      else  { virsorterGetDB(); db = virsorterGetDB.out } 
+    }
+  emit: db    
 }
-else if (workflow.profile == 'googlegenomics' && (params.fasta)) {
-    virsorter_db_preload = file("gs://databases-matrice/databases/virsorter/virsorter-data")
-}
-if (workflow.profile == 'googlegenomics' && virsorter_db_preload.exists()) {
-    database_virsorter = virsorter_db_preload 
-}    
-// if preload and user input not present download the database
-if (!params.virsorter_db && !virsorter_db_preload.exists() && (params.fasta)) {
-    include 'modules/virsorterGetDB'
-    virsorterGetDB() 
-    database_virsorter = virsorterGetDB.out 
-} 
 
 
 /************************** 
-* NO ASSEMBLY ONLY DETECTION WORKFLOW
+* SUB WORKFLOWS
 **************************/
 
 /* Comment section:
 */
+workflow detection {
+    get:    assembly
+            virsorter_db
 
-if (params.fasta) {
-
-    // modules
-    include 'modules/virsorter' params(output: params.output, virusdir: params.virusdir)
-    //include 'modules/virfinder' params(output: params.output, virusdir: params.virusdir)
-
-    // Workflow            
+    main:
         // virus detection --> VirSorter and VirFinder
-        virsorter(fasta_input_ch, database_virsorter)
+        virsorter(assembly, virsorter_db)
         //virfinder(fasta_input_ch)
 
         // ORF detection --> prodigal
@@ -129,123 +141,76 @@ if (params.fasta) {
 }
 
 
-
-
-
-
-
-
-
-/************************** 
-* ILLUMINA ONLY WORKFLOW
-**************************/
-
 /* Comment section:
-
-
 */
+workflow assembly_illumina {
+    get:    reads
 
-if (!params.nano && params.illumina) {
-
-    // modules
-    include 'modules/fastp'
-    include 'modules/fastqc'
-    include 'modules/multiqc' params(output: params.output, readQCdir: params.readQCdir)
-    include 'modules/spades' params(output: params.output, assemblydir: params.assemblydir, memory: params.memory)
-    include 'modules/virsorter' params(output: params.output, virusdir: params.virusdir)
-    include 'modules/virfinder' params(output: params.output, virusdir: params.virusdir)
-
-    // Workflow            
+    main:
         // trimming --> fastp
-        fastp(illumina_input_ch)
+        fastp(reads)
  
         // read QC --> fastqc/multiqc?
         multiqc(fastqc(fastp.out))
 
         // assembly with asembler choice --> metaSPAdes
         spades(fastp.out)
-        assemblerOutput = spades.out
 
-        // virus detection --> VirSorter and VirFinder
-        virsorter(spades.out, database_virsorter)
-        virfinder(spades.out)
-
-
-        // ORF detection --> prodigal
-
-        // annotation --> hmmer
-
+    emit:
+        spades.out
 }
 
-
-/************************** 
-* NANOPORE ONLY WORKFLOW
-**************************/
-
 /* Comment section:
-ONT-only Assembly Workflow Section. Contains:
-    Read Filtering, Assembly, Polishing, Annotation etc.
-
-Improvement Section:
-Augustus makes sense and we can use it, would be good if it can download RNA-seq data and genes to generate model
-
-Alternative assembly: 
-shasta (https://github.com/chanzuckerberg/shasta)
-https://www.biorxiv.org/content/10.1101/183780v1
-
-Mitos workflow: mitochondriale prediction mit simplen circulärer plot 
-https://academic.oup.com/nar/article/47/11/e63/5377471
 */
+workflow assembly_nanopore {
+    get:    reads
 
-if (params.nano && !params.illumina) {
-
-    // modules
-        include 'modules/bandage' params(output: params.output, assemblydir: params.assemblydir)
-        include 'modules/busco' params(output: params.output)
-        include 'modules/filtlong'
-        include 'modules/flye' params(output: params.output, gsize: params.gsize)
-        include 'modules/medaka' params(output: params.output, model: params.model, assemblydir: params.assemblydir)
-        include 'modules/minimap2'
-        include 'modules/nanoplot' params(output: params.output)
-        include 'modules/racon'
-        include 'modules/removeSmallReads' params(output: params.output)
-        include 'modules/shasta' params(output: params.output, gsize: params.gsize)
-        include 'modules/sourclass' params(output: params.output)
-
-    // Workflow
+    main:
         // trimming and QC of trimmed reads
-            filtlong(nano_input_ch)
+        filtlong(reads)
         // read QC of all reads
-            nanoplot(nano_input_ch)  
+        nanoplot(reads)  
         // assembly with asembler choice via --assemblerLong
-            if (params.assemblerLong == 'flye') { flye(filtlong.out) ; assemblerOutput = flye.out[0] ; graphOutput = flye.out[1]}
-            if (params.assemblerLong == 'shasta') { shasta(filtlong.out) ; assemblerOutput = shasta.out[0] ; graphOutput = shasta.out[1]}
+        if (params.assemblerLong == 'flye') { flye(filtlong.out) ; assemblerOutput = flye.out[0] ; graphOutput = flye.out[1]}
+        if (params.assemblerLong == 'shasta') { shasta(filtlong.out) ; assemblerOutput = shasta.out[0] ; graphOutput = shasta.out[1]}
         // polishing 
-            medaka(racon(minimap2(assemblerOutput)))
-        // tax. classification
-            sourclass(medaka.out, database_sourmash)
-        // assembly graph
-            bandage(graphOutput)
-        // annotation
-            /* see here: https://galaxyproject.github.io/training-material/topics/genome-annotation/tutorials/annotation-with-maker/tutorial.html
-             augustus
-             get or include more models to predict the genes
-            */
-        // busco “Mode”: Genome “Lineage”: fungi_odb9
-            busco(medaka.out)    
-                 
+        medaka(racon(minimap2(assemblerOutput)))
+
+    emit:
+        assemblerOutput
 }
 
+
 /************************** 
-* HYBRID WORKFLOW
+* WORKFLOW ENTRY POINT
 **************************/
 
-/* Comment section:
+/* Comment section: */
 
+workflow {
+    download_virsorter_db()
+    virsorter_db = download_virsorter_db.out
 
-*/
+    // only detection based on an assembly
+    if (params.fasta) {
+        detection(fasta_input_ch, virsorter_db)
+    }
 
+    // illumina data
+    if (!params.nano && params.illumina) { 
+        detection(assembly_illumina(params.illumina), virsorter_db)   
+    }
 
+    // nanopore data
+    if (params.nano && !params.illumina) { 
+        detection(assembly_nanopore(params.nano), virsorter_db)           
+    }
+
+    // hybrid data
+    if (params.nano && params.illumina) { 
+        
+    }
+}
 
 
 
