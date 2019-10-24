@@ -79,22 +79,33 @@ add csv instead. name,path   or name,pathR1,pathR2 in case of illumina
 
 /* Comment section: */
 
+//db
 include './modules/virsorterGetDB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
 include './modules/kaijuGetDB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
+
+//detection
 include './modules/virsorter' params(output: params.output, dir: params.virusdir)
-include './modules/fastp'
 include './modules/virfinder' params(output: params.output, dir: params.virusdir)
+include './modules/kaiju' params(output: params.output, illumina: params.illumina, nano: params.nano, fasta: params.fasta)
+
+//qc
+include './modules/fastp'
 include './modules/fastqc'
 include './modules/multiqc' params(output: params.output, dir: params.readQCdir)
-include './modules/spades' params(output: params.output, assemblydir: params.assemblydir, memory: params.memory)
+include './modules/nanoplot' params(output: params.output)
 include './modules/filtlong'
+
+//assembly
+include './modules/spades' params(output: params.output, assemblydir: params.assemblydir, memory: params.memory)
 include './modules/flye' params(output: params.output, gsize: params.gsize)
 include './modules/medaka' params(output: params.output, model: params.model, assemblydir: params.assemblydir)
 include './modules/minimap2'
-include './modules/nanoplot' params(output: params.output)
 include './modules/racon'
 include './modules/shasta' params(output: params.output, gsize: params.gsize)
-include './modules/krona'
+
+//visuals
+include './modules/krona' params(output: params.output)
+
 
 /************************** 
 * DATABASES
@@ -164,8 +175,13 @@ workflow detection_nanopore {
 
     main:
         //kaiju
+        kaiju(nanopore_reads, kaiju_db)
+
+        //krona
+        krona(kaiju.out)
 
         //kmer frequencies
+        kmerfreq()
 
         //UMAP
 
@@ -238,9 +254,9 @@ workflow assembly_nanopore {
 /* Comment section: */
 
 workflow {
-    download_virsorter_db()
+    //download_virsorter_db()
+    //virsorter_db = download_virsorter_db.out
     download_kaiju_db()
-    virsorter_db = download_virsorter_db.out
     kaiju_db = download_kaiju_db.out
 
     // only detection based on an assembly
@@ -250,12 +266,12 @@ workflow {
 
     // illumina data
     if (!params.nano && params.illumina) { 
-        detection(assembly_illumina(params.illumina), virsorter_db)   
+        detection(assembly_illumina(illumina_input_ch), virsorter_db)   
     }
 
     // nanopore data
     if (params.nano && !params.illumina) { 
-        detection_nanopore(params.nano, kaiju_db)           
+        detection_nanopore(nano_input_ch, kaiju_db)           
     }
 
     // hybrid data

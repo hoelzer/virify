@@ -1,13 +1,13 @@
 process krona {
-    publishDir "${params.output}/${name}/", mode: 'copy', pattern: "${name}.out.html"
+    publishDir "${params.output}/${name}/", mode: 'copy', pattern: "${name}.kaiju.html"
     label 'krona'  
   input:
-    tuple val(name), file(fastqc)
+    tuple val(name), file(kaiju_file), file(krona_file)
   output:
-    file("${name}.out.html")
+    file("${name}.kaiju.html")
   script:
     """
-    ktImportText -o ${name}.out.html ${name}.out.krona
+    ktImportText -o ${name}.kaiju.html ${krona_file}
     """
   }
 
