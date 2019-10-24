@@ -1,5 +1,5 @@
 process virsorter {
-      publishDir "${params.output}/${name}/${params.virusdir}/", mode: 'copy', pattern: "*"
+      publishDir "${params.output}/${name}/${params.dir}/", mode: 'copy', pattern: "*"
       label 'virsorter'
 
     input:

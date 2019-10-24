@@ -2,9 +2,9 @@ process fastp {
     label 'fastp'  
     //publishDir "${params.output}/${name}/", mode: 'copy', pattern: "${name}.R*.fastp.fastq.gz"
   input:
-    set val(name), file(reads)
+    tuple val(name), file(reads)
   output:
-    set val(name), file("${name}*.fastp.fastq.gz")
+    tuple val(name), file("${name}*.fastp.fastq.gz")
   script:
     """
     fastp -i ${reads[0]} -I ${reads[1]} --thread ${task.cpus} -o ${name}.R1.fastp.fastq.gz -O ${name}.R2.fastp.fastq.gz

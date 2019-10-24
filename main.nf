@@ -80,12 +80,12 @@ add csv instead. name,path   or name,pathR1,pathR2 in case of illumina
 /* Comment section: */
 
 include './modules/virsorterGetDB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
-include './modules/virsorter' params(output: params.output, virusdir: params.virusdir)
-
-/*include './modules/fastp'
-include './modules/virfinder' params(output: params.output, virusdir: params.virusdir)
+include './modules/kaijuGetDB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
+include './modules/virsorter' params(output: params.output, dir: params.virusdir)
+include './modules/fastp'
+include './modules/virfinder' params(output: params.output, dir: params.virusdir)
 include './modules/fastqc'
-include './modules/multiqc' params(output: params.output, readQCdir: params.readQCdir)
+include './modules/multiqc' params(output: params.output, dir: params.readQCdir)
 include './modules/spades' params(output: params.output, assemblydir: params.assemblydir, memory: params.memory)
 include './modules/filtlong'
 include './modules/flye' params(output: params.output, gsize: params.gsize)
@@ -94,7 +94,7 @@ include './modules/minimap2'
 include './modules/nanoplot' params(output: params.output)
 include './modules/racon'
 include './modules/shasta' params(output: params.output, gsize: params.gsize)
-*/
+include './modules/krona'
 
 /************************** 
 * DATABASES
@@ -111,9 +111,22 @@ workflow download_virsorter_db {
     if (!params.cloudProcess) { virsorterGetDB(); db = virsorterGetDB.out }
     // cloud storage via db_preload.exists()
     if (params.cloudProcess) {
-      db_preload = file("${params.cloudDatabase}/databases/virsorter/virsorter-data")
+      db_preload = file("${params.cloudDatabase}/virsorter/virsorter-data")
       if (db_preload.exists()) { db = db_preload }
       else  { virsorterGetDB(); db = virsorterGetDB.out } 
+    }
+  emit: db    
+}
+
+workflow download_kaiju_db {
+    main:
+    // local storage via storeDir
+    if (!params.cloudProcess) { kaijuGetDB(); db = kaijuGetDB.out }
+    // cloud storage via db_preload.exists()
+    if (params.cloudProcess) {
+      db_preload = file("${params.cloudDatabase}/kaiju/virsorter-data")
+      if (db_preload.exists()) { db = db_preload }
+      else  { kaijuGetDB(); db = kaijuGetDB.out } 
     }
   emit: db    
 }
@@ -139,6 +152,43 @@ workflow detection {
         // annotation --> hmmer
 
 }
+
+
+/* Comment section:
+This sub workflow is based on Beaulaurier et al. 2019, Assembly-free single-molecule nanopore sequencing
+recovers complete virus genomes from natural microbial communities. [https://www.biorxiv.org/content/biorxiv/early/2019/04/26/619684.full.pdf]
+*/
+workflow detection_nanopore {
+    get:    nanopore_reads
+            kaiju_db
+
+    main:
+        //kaiju
+
+        //kmer frequencies
+
+        //UMAP
+
+        //HDBSCAN
+
+        //filter bins
+
+        //flye
+
+        //filter reads
+
+        //FastANI
+
+        //cluster ANI
+
+        //polishing
+
+        //orf prediction
+
+        //find DTR (direct terminal repeats)
+
+}
+
 
 
 /* Comment section:
@@ -189,11 +239,13 @@ workflow assembly_nanopore {
 
 workflow {
     download_virsorter_db()
+    download_kaiju_db()
     virsorter_db = download_virsorter_db.out
+    kaiju_db = download_kaiju_db.out
 
     // only detection based on an assembly
     if (params.fasta) {
-        detection(fasta_input_ch, virsorter_db)
+        //detection(fasta_input_ch, virsorter_db)
     }
 
     // illumina data
@@ -203,13 +255,15 @@ workflow {
 
     // nanopore data
     if (params.nano && !params.illumina) { 
-        detection(assembly_nanopore(params.nano), virsorter_db)           
+        detection_nanopore(params.nano, kaiju_db)           
     }
 
     // hybrid data
     if (params.nano && params.illumina) { 
         
     }
+
+
 }
 
 

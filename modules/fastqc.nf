@@ -1,9 +1,9 @@
 process fastqc {
     label 'fastqc'  
   input:
-    set val(name), file(reads)
+    tuple val(name), file(reads)
   output:
-    set val(name), file("fastqc/${name}*fastqc*")
+    tuple val(name), file("fastqc/${name}*fastqc*")
   script:
     """
     mkdir fastqc
