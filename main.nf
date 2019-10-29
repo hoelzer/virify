@@ -181,7 +181,7 @@ workflow detection_nanopore {
         krona(kaiju.out)
 
         //kmer frequencies
-        //kmerfreq()
+        //kmerfreq(kaiju.out, nanopore_reads)
 
         //UMAP
 
