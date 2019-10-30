@@ -15,16 +15,16 @@ process kaijuGetDB {
     """
     #this is the full database
     if [ 42 == 42 ]; then
+    mkdir -p nr_euk
+    cd nr_euk
     wget http://kaiju.binf.ku.dk/database/kaiju_db_nr_euk_2019-06-25.tgz 
     tar -xvzf kaiju_db_nr_euk_2019-06-25.tgz
     rm kaiju_db_nr_euk_2019-06-25.tgz
-    mkdir nr_euk
-    mv names.dmp nodes.dmp viruses nr_euk
     fi
 
     # for testing purpose download a smaller one
     if [ 42 == 0 ]; then
-    mkdir viruses
+    mkdir -p viruses
     cd viruses
     wget http://kaiju.binf.ku.dk/database/kaiju_db_viruses_2019-06-25.tgz
     tar -xvzf kaiju_db_viruses_2019-06-25.tgz
