@@ -87,6 +87,11 @@ include './modules/kaijuGetDB' params(cloudProcess: params.cloudProcess, cloudDa
 include './modules/virsorter' params(output: params.output, dir: params.virusdir)
 include './modules/virfinder' params(output: params.output, dir: params.virusdir)
 include './modules/kaiju' params(output: params.output, illumina: params.illumina, nano: params.nano, fasta: params.fasta)
+include './modules/filter_reads' params(output: params.output)
+include './modules/kmerfreq' params(output: params.output)
+include './modules/umap' params(output: params.output)
+include './modules/hdbscan' params(output: params.output)
+include './modules/filter_bins' params(output: params.output)
 
 //qc
 include './modules/fastp'
@@ -178,16 +183,20 @@ workflow detection_nanopore {
         kaiju(nanopore_reads, kaiju_db)
 
         //krona
-        krona(kaiju.out)
+        krona(kaiju.out[1])
 
         //kmer frequencies
-        //kmerfreq(kaiju.out, nanopore_reads)
+        filter_reads(kaiju.out[0], nanopore_reads)
+        kmerfreq(filter_reads.out)
 
         //UMAP
+        umap(kmerfreq.out)
 
         //HDBSCAN
+        hdbscan(umap.out)
 
         //filter bins
+        filter_bins(hdbscan.out)
 
         //flye
 

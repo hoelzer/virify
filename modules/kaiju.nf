@@ -7,7 +7,8 @@ process kaiju {
       file(database) 
     
     output:
-      tuple val(name), file("${name}.out.unclassified"), file("${name}.out.krona")
+      tuple val(name), file("${name}.out.unclassified")
+      tuple val(name), file("${name}.out.krona")
     
     shell:
       if (params.illumina) {

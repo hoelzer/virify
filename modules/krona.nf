@@ -2,7 +2,7 @@ process krona {
     publishDir "${params.output}/${name}/", mode: 'copy', pattern: "${name}.kaiju.html"
     label 'krona'  
   input:
-    tuple val(name), file(kaiju_file), file(krona_file)
+    tuple val(name), file(krona_file)
   output:
     file("${name}.kaiju.html")
   script:

@@ -1,20 +1,15 @@
 process kmerfreq {
-      publishDir "${params.output}/${name}/", mode: 'copy', pattern: ""
+      publishDir "${params.output}/${name}/", mode: 'copy', pattern: "${name}.kmers"
       label 'marine_phage_paper_scripts'
 
     input:
-      tuple val(name), file(kaiju_file_unclassified), file(krona_file)
-      tuple val(name), file(fastq) 
+      tuple val(name), file(filtered_fastq) 
 
     output:
-      tuple val(name), file()
+      tuple val(name), file("${name}.kmers")
 
     script:
       """
-      # collect all reads that are unclassified
-      
-
-      # calculate kmer frequencies
-      kmer_freq.py ${}
+      kmer_freq.py -t ${task.cpus} ${filtered_fastq} > ${name}.kmers
       """
 }
