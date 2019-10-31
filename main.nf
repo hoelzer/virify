@@ -140,7 +140,7 @@ workflow download_kaiju_db {
     if (!params.cloudProcess) { kaijuGetDB(); db = kaijuGetDB.out }
     // cloud storage via db_preload.exists()
     if (params.cloudProcess) {
-      db_preload = file("${params.cloudDatabase}/kaiju/virsorter-data")
+      db_preload = file("${params.cloudDatabase}/kaiju/nr_euk")
       if (db_preload.exists()) { db = db_preload }
       else  { kaijuGetDB(); db = kaijuGetDB.out } 
     }
