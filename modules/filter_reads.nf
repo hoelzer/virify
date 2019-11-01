@@ -1,6 +1,6 @@
 process filter_reads {
       publishDir "${params.output}/${name}/", mode: 'copy', pattern: "${name}.unclassified.fastq"
-      label 'ucsc-utils'
+      label 'ucsc'
 
     input:
       tuple val(name), file(kaiju_unclassified)
