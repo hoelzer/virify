@@ -1,6 +1,6 @@
 process filter_reads {
       publishDir "${params.output}/${name}/", mode: 'copy', pattern: "${name}.unclassified.fastq"
-      label 'ruby'
+      label 'ucsc-utils'
 
     input:
       tuple val(name), file(kaiju_unclassified)
@@ -9,8 +9,19 @@ process filter_reads {
     output:
       tuple val(name), file("${name}.unclassified.fastq")
     
-    script:
+    shell:
     """
+    sed '/^@/!d;s//>/;N' ${fastq} > ${name}.fasta
+    faSomeRecords ${name}.fasta ${kaiju_unclassified} ${name}.unclassified.fasta
+    faToFastq ${name}.unclassified.fasta ${name}.unclassified.fastq
+    rm -f ${name}.fasta ${name}.unclassified.fasta
+    """
+}
+
+/*
+Super slow, re-code
+
+old code:
     #!/usr/bin/env ruby
 
     out = File.open('${name}.unclassified.fastq', 'w')
@@ -41,5 +52,5 @@ process filter_reads {
     end
 
     out.close
-    """
-}
+
+*/
