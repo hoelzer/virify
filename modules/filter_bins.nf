@@ -1,12 +1,12 @@
 process filter_bins {
-      publishDir "${params.output}/${name}/", mode: 'copy', pattern: "${name}"
+      publishDir "${params.output}/${name}/", mode: 'copy', pattern: "${name}.bin_rl_filter.tsv"
       label 'marine_phage_paper_scripts'
 
     input:
       tuple val(name), file(hdbscan_clusters) 
 
     output:
-      tuple val(name), file("${name}")
+      tuple val(name), file("${name}.bin_rl_filter.tsv")
 
     script:
       """
