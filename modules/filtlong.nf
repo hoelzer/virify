@@ -3,10 +3,10 @@ process filtlong {
   input:
     tuple val(name), file(reads) 
   output:
-	  tuple val(name), file("${name}_minlength_reduced.fastq.gz") 
+	  tuple val(name), file("${name}_minlength_reduced.fastq") 
   script:
     """
-    filtlong --min_length 100 ${reads} | gzip > ${name}_minlength_reduced.fastq.gz
+    filtlong --min_length 100 ${reads} > ${name}_minlength_reduced.fastq
     """
 }
 
