@@ -198,6 +198,9 @@ workflow detection_nanopore {
         //filter bins
         filter_bins(hdbscan.out)
 
+        //generate a fastq for each bin
+        //xxx(hdbscan.out, filtlong.out)
+
         //flye
 
         //filter reads
