@@ -4,17 +4,18 @@ process filter_reads {
 
     input:
       tuple val(name), file(kaiju_unclassified)
-      tuple val(name), file(fastq) 
+      tuple val(fastq_filtered_name), file(fastq) 
     
     output:
       tuple val(name), file("${name}.unclassified.fastq")
     
     shell:
     """
-    sed '/^@/!d;s//>/;N' ${fastq} > ${name}.fasta
+    gunzip -f ${fastq}
+    sed '/^@/!d;s//>/;N' ${fastq_filtered_name}.fastq > ${name}.fasta
     faSomeRecords ${name}.fasta ${kaiju_unclassified} ${name}.unclassified.fasta
     faToFastq ${name}.unclassified.fasta ${name}.unclassified.fastq
-    rm -f ${name}.fasta ${name}.unclassified.fasta
+    rm -f ${fastq_filtered_name}.fastq ${name}.fasta ${name}.unclassified.fasta
     """
 }
 
