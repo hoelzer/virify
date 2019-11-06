@@ -184,6 +184,9 @@ workflow detection_nanopore {
         //kaiju
         kaiju(filtlong(nanopore_reads), kaiju_db)
 
+        //add virus classified reads to the read list
+        add_virus_ids(kaiju.out[0])
+
         //krona
         krona(kaiju.out[1])
 

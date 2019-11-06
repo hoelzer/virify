@@ -29,8 +29,12 @@ process kaiju {
       '''
       kaiju -a greedy -e 5 -z !{task.cpus} -t !{database}/nodes.dmp -f !{database}/!{database}/kaiju_db_!{database}.fmi -i !{fastq} -o !{name}.out
       kaiju2krona -t !{database}/nodes.dmp -n !{database}/names.dmp -i !{name}.out -o !{name}.out.krona
-      #awk '{if($1=="U"){print $2}}' !{name}.out > !{name}.out.unclassified
-      awk '{if($1!="U"){print $2}}' !{name}.out > !{name}.out.unclassified
+      awk '{if($1=="U"){print $2}}' !{name}.out > !{name}.out.unclassified
       '''
       }
 }
+
+/*
+todo: also get lists for the Classified reads!
+todo: include viruses.taxids
+*/
