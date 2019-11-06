@@ -10,10 +10,10 @@ process get_reads_per_bin {
       file('foo')
     //  tuple val(name), file("${name}.bin-*.fasta")
     //  tuple val(name), file("${name}.bin-*.fastq")
-    script:
-    '''
-    echo ${filtered_bins} > foo
-    '''
+    shell:
+    """
+    echo ${filtered_bins} \${USER} > foo
+    """
     /*shell:
     '''
     for BIN_ID in $(awk '{if($2=="True"){print $1}}' !{filtered_bins}); do
@@ -32,6 +32,34 @@ process get_reads_per_bin {
     #for BIN_ID in $(awk '{if($2=="True"){print $1}}' !{filtered_bins}); do
     #  echo $BIN_ID > foo
     #done
+
+
+
+    shell:
+        """
+        for bin in ${bins}/bin.*.fa
+            do
+            bin_name=\$(basename \${bin} )
+            cat \${bin} | grep -o -E "^>\\w+\\.\\w+" |sed 's/>//g'| tr -d "@" > \${bin_name}.contigs.list
+        done
+        """
+
+
+process get_reads_per_bin {
+      publishDir "${params.output}/${name}/", mode: 'copy', pattern: "foo"
+      label 'ucsc'
+
+    input:
+      tuple val(name), file(hdbscan_bins), file(filtered_bins), file(fasta) 
+    
+    output:
+      file('foo')
+
+    shell:
+    '''
+    echo ${filtered_bins} > foo
+    '''
+}
 
 
 */
