@@ -14,4 +14,8 @@ process canu {
   }
 
 /* Comments:
+  -- WARNING:
+  -- WARNING:  Failed to run gnuplot using command 'gnuplot'.
+  -- WARNING:  Plots will be disabled.
+  -- WARNING:
 */
