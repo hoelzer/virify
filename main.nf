@@ -187,6 +187,10 @@ workflow detection_nanopore {
         krona(kaiju.out[1])
 
         //kmer frequencies
+
+        kaiju.out[0].view()
+        filtlong.out.view()
+
         filter_reads(kaiju.out[0], filtlong.out)
         kmerfreq(filter_reads.out[0])
 
