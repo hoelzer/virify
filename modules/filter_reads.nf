@@ -3,8 +3,7 @@ process filter_reads {
       label 'ucsc'
 
     input:
-      tuple val(name), file(kaiju_unclassified)
-      tuple val(fastq_filtered_name), file(fastq) 
+      tuple val(name), file(kaiju_unclassified), file(fastq) 
     
     output:
       tuple val(name), file("${name}.unclassified.fastq")

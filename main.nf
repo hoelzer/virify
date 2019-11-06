@@ -187,13 +187,7 @@ workflow detection_nanopore {
         krona(kaiju.out[1])
 
         //kmer frequencies
-
-        kaiju.out[0].view()
-        filtlong.out.view()
-
-        kaiju.out[0].join(filtlong.out).view()
-
-        filter_reads(kaiju.out[0], filtlong.out)
+        filter_reads(kaiju.out[0].join(filtlong.out))
         kmerfreq(filter_reads.out[0])
 
         //UMAP
@@ -206,6 +200,8 @@ workflow detection_nanopore {
         filter_bins(hdbscan.out)
 
         //generate a fastq for each bin
+        hdbscan.out.join(filter_bins.out).join(filter_reads.out[1]).view()
+        
         get_reads_per_bin(hdbscan.out, filter_bins.out, filter_reads.out[1])
         //SRR8811960_1.fastq.hdbscan.tsv
         //SRR8811960_1.fastq.bin_rl_filter.tsv
