@@ -206,7 +206,7 @@ workflow detection_nanopore {
 
         //flye
         flye(get_reads_per_bin.out[0].transpose())
-        flye.out.view()
+        flye.out[0].view()
 
         //canu
         //canu(get_reads_per_bin.out[0].transpose())
