@@ -10,7 +10,7 @@ process get_reads_per_bin {
       file('foo')
     //  tuple val(name), file("${name}.bin-*.fasta")
     //  tuple val(name), file("${name}.bin-*.fastq")
-    shell:
+    script:
     """
     echo ${filtered_bins} \${USER} > foo
     """
