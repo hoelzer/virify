@@ -1,17 +1,19 @@
 process get_reads_per_bin {
       //publishDir "${params.output}/${name}/", mode: 'copy', pattern: "${name}.bin-*.fasta"
+      publishDir "${params.output}/${name}/", mode: 'copy', pattern: "foo"
       label 'ucsc'
 
     input:
       tuple val(name), file(hdbscan_bins), file(filtered_bins), file(fasta) 
     
-    //output:
+    output:
+      file('foo')
     //  tuple val(name), file("${name}.bin-*.fasta")
     //  tuple val(name), file("${name}.bin-*.fastq")
     shell
     '''
     for BIN_ID in $(awk '{if($2=="True"){print $1}}' !{filtered_bins}); do
-      echo $BIN_ID
+      echo $BIN_ID > foo
     done
     '''
     /*shell:
