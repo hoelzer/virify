@@ -1,12 +1,17 @@
 process canu {
     label 'canu'  
-    publishDir "${params.output}/${name}/", mode: 'copy', pattern: ""
+    publishDir "${params.output}/${name}/", mode: 'copy', pattern: "${name}.canu.fasta"
+    publishDir "${params.output}/${name}/", mode: 'copy', pattern: "${name}.canu.log"
   input:
-    tuple val(name), file(read)
+    tuple val(name), file(fastq), file(gsize)
   output:
-    tuple val(name), file(read), file("${name}.fasta")
+    tuple val(name), file("${name}.canu.fasta")
   script:
     """
+    echo ${fastq} ${gsize} > ${name}.canu.log
+    GSIZE=\$(cat ${gsize})
+    canu -p ${name} -d canu_results maxThreads=${task.cpus} maxMemory=${task.memory} genomeSize=\${GSIZE} -correct corOutCoverage=400 stopOnLowCoverage=0 -nanopore-raw ${fastq}
+    mv canu_results/${name}.contigs.fasta ${name}.canu.fasta
     """
   }
 

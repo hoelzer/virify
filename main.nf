@@ -204,12 +204,14 @@ workflow detection_nanopore {
         get_reads_per_bin_ch = hdbscan.out.join(filter_bins.out).join(filter_reads.out[1])
         get_reads_per_bin(get_reads_per_bin_ch)
 
-        get_reads_per_bin.out[0].view()
+        //get_reads_per_bin.out[0].view()
+        get_reads_per_bin.out[0].transpose().view()
 
         //flye
 
         //canu
         //canu(get_reads_per_bin.out[0])
+        //canu.out.view()
 
         //filter reads
 
