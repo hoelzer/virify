@@ -12,7 +12,6 @@ process get_reads_per_bin {
     script:
     """
     for BIN_ID in \$(awk '{if(\$2=="True"){print \$1}}' ${filtered_bins}); do
-      BIN_ID_NAME=\$(expr \$BIN_ID + 1)
       echo \${BIN_ID} > foo.reads
     done
     """
@@ -21,6 +20,7 @@ process get_reads_per_bin {
 /*
 I add 1 to each bin number because for some reason the bins start with -1
 
+      BIN_ID_NAME=\$(expr \$BIN_ID + 1)
       awk -v ID="\$BIN_ID" '{if(\$5==ID){print \$1}}' ${hdbscan_bins} > \${BIN_ID_NAME}.reads
       faSomeRecords ${fasta} \${BIN_ID_NAME}.reads ${name}.bin-\${BIN_ID_NAME}.fasta
       faToFastq ${name}.bin-\${BIN_ID_NAME}.fasta ${name}.bin-\${BIN_ID_NAME}.fastq
