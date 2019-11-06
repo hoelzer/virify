@@ -1,10 +1,10 @@
 process canu {
     label 'canu'  
-    publishDir "${params.output}/${name}/", mode: 'copy', pattern: "${name}.canu.fasta"
+    publishDir "${params.output}/${name}/", mode: 'copy', pattern: "${name}.BIN*.canu.fasta"
   input:
     tuple val(name), file(fastq), file(gsize)
   output:
-    tuple val(name), file("${name}.canu.fasta")
+    tuple val(name), file("${name}.BIN*.canu.fasta")
   script:
     """
     GSIZE=\$(cat ${gsize})
