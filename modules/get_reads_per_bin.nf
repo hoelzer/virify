@@ -10,13 +10,13 @@ process get_reads_per_bin {
       file('foo')
     //  tuple val(name), file("${name}.bin-*.fasta")
     //  tuple val(name), file("${name}.bin-*.fastq")
-    shell:
-    '''
+    script:
+    """
     #for BIN_ID in $(awk '{if($2=="True"){print $1}}' !{filtered_bins}); do
     #  echo $BIN_ID > foo
     #done
-    echo !{filtered_bins} > foo
-    '''
+    echo ${filtered_bins} > foo
+    """
     /*shell:
     '''
     for BIN_ID in $(awk '{if($2=="True"){print $1}}' !{filtered_bins}); do
