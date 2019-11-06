@@ -12,7 +12,7 @@ process get_reads_per_bin {
     script:
     """
     for BIN_ID in \$(awk '{if(\$2=="True"){print \$1}}' ${filtered_bins}); do
-      BIN_ID_NAME=\$(expr \${BIN_ID} + 1)
+      BIN_ID_NAME="BIN-"\${BIN_ID}
       echo \${BIN_ID} > foo.reads
     done
     """
