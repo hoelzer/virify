@@ -12,9 +12,6 @@ process get_reads_per_bin {
     //  tuple val(name), file("${name}.bin-*.fastq")
     script:
     """
-    #for BIN_ID in $(awk '{if($2=="True"){print $1}}' !{filtered_bins}); do
-    #  echo $BIN_ID > foo
-    #done
     echo ${filtered_bins} > foo
     """
     /*shell:
@@ -28,3 +25,13 @@ process get_reads_per_bin {
     '''
     */
 }
+
+
+/*
+
+    #for BIN_ID in $(awk '{if($2=="True"){print $1}}' !{filtered_bins}); do
+    #  echo $BIN_ID > foo
+    #done
+
+
+*/
