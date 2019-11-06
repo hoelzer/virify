@@ -6,8 +6,8 @@ process get_reads_per_bin {
       tuple val(name), file(hdbscan_bins), file(filtered_bins), file(fasta) 
     
     output:
-      tuple val(name), file("${name}.BIN-*.fastq"), val("${name}.BIN-*.gsize")
-      tuple val(name), file("${name}.BIN-*.fasta"), val("${name}.BIN-*.gsize")
+      tuple val(name), file("${name}.BIN-*.fastq"), file("${name}.BIN-*.gsize")
+      tuple val(name), file("${name}.BIN-*.fasta"), file("${name}.BIN-*.gsize")
     script:
     """
     for BIN_ID in \$(awk '{if(\$2=="True"){print \$1}}' ${filtered_bins}); do
