@@ -8,8 +8,10 @@ process get_reads_per_bin {
     //output:
     //  tuple val(name), file("${name}.bin-*.fasta")
     //  tuple val(name), file("${name}.bin-*.fastq")
-    
-    shell:
+    """
+    echo ${name}
+    """
+    /*shell:
     '''
     for BIN_ID in $(awk '{if($2=="True"){print $1}}' !{filtered_bins}); do
       echo $BIN_ID
@@ -18,4 +20,5 @@ process get_reads_per_bin {
       #faToFastq !{name}.bin-${BIN_ID}.fasta !{name}.bin-${BIN_ID}.fastq
     done
     '''
+    */
 }
