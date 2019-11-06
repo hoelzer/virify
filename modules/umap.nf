@@ -10,7 +10,7 @@ process umap {
 
     script:
       """
-      run_umap.py -p ${name} --min_length 2000 ${kmer_freqs}
+      run_umap.py -p ${name} ${kmer_freqs}
       """
 }
 
