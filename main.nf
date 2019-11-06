@@ -201,6 +201,7 @@ workflow detection_nanopore {
 
         //generate a fastq for each bin
         get_reads_per_bin_ch = hdbscan.out.join(filter_bins.out).join(filter_reads.out[1])
+        get_reads_per_bin_ch.view()
         //SRR8811960_1.fastq, SRR8811960_1.fastq.hdbscan.tsv, SRR8811960_1.fastq.bin_rl_filter.tsv, SRR8811960_1.unclassified.fasta
         get_reads_per_bin(get_reads_per_bin_ch)
 
