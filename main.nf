@@ -103,7 +103,7 @@ include './modules/filtlong'
 
 //assembly
 include './modules/spades' params(output: params.output, assemblydir: params.assemblydir, memory: params.memory)
-include './modules/flye' params(output: params.output, gsize: params.gsize)
+include './modules/flye' params(output: params.output)
 include './modules/canu' params(output: params.output)
 include './modules/medaka' params(output: params.output, model: params.model, assemblydir: params.assemblydir)
 include './modules/minimap2'
@@ -204,14 +204,15 @@ workflow detection_nanopore {
         get_reads_per_bin_ch = hdbscan.out.join(filter_bins.out).join(filter_reads.out[1])
         get_reads_per_bin(get_reads_per_bin_ch)
 
-        //get_reads_per_bin.out[0].view()
-        get_reads_per_bin.out[0].transpose().view()
-
         //flye
+        flye(get_reads_per_bin.out[0].transpose())
+        flye.out.view()
 
         //canu
-        //canu(get_reads_per_bin.out[0])
-        //canu.out.view()
+        canu(get_reads_per_bin.out[0].transpose())
+        canu.out.view()
+
+        //Bandage?
 
         //filter reads
 
