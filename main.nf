@@ -104,6 +104,7 @@ include './modules/filtlong'
 //assembly
 include './modules/spades' params(output: params.output, assemblydir: params.assemblydir, memory: params.memory)
 include './modules/flye' params(output: params.output, gsize: params.gsize)
+include './modules/canu' params(output: params.output)
 include './modules/medaka' params(output: params.output, model: params.model, assemblydir: params.assemblydir)
 include './modules/minimap2'
 include './modules/racon'
@@ -201,12 +202,14 @@ workflow detection_nanopore {
 
         //generate a fastq for each bin
         get_reads_per_bin_ch = hdbscan.out.join(filter_bins.out).join(filter_reads.out[1])
-        //SRR8811960_1.fastq, SRR8811960_1.fastq.hdbscan.tsv, SRR8811960_1.fastq.bin_rl_filter.tsv, SRR8811960_1.unclassified.fasta
         get_reads_per_bin(get_reads_per_bin_ch)
 
         get_reads_per_bin.out[0].view()
 
         //flye
+
+        //canu
+        //canu(get_reads_per_bin.out[0])
 
         //filter reads
 
