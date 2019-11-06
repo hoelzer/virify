@@ -92,6 +92,7 @@ include './modules/kmerfreq' params(output: params.output)
 include './modules/umap' params(output: params.output)
 include './modules/hdbscan' params(output: params.output)
 include './modules/filter_bins' params(output: params.output)
+include './modules/get_reads_per_bin' params(output: params.output)
 
 //qc
 include './modules/fastp'
@@ -187,7 +188,7 @@ workflow detection_nanopore {
 
         //kmer frequencies
         filter_reads(kaiju.out[0], filtlong.out)
-        kmerfreq(filter_reads.out)
+        kmerfreq(filter_reads.out[0])
 
         //UMAP
         umap(kmerfreq.out)
@@ -199,7 +200,10 @@ workflow detection_nanopore {
         filter_bins(hdbscan.out)
 
         //generate a fastq for each bin
-        //xxx(hdbscan.out, filtlong.out)
+        get_reads_per_bin(hdbscan.out, filter_bins.out, filter_reads.out[1])
+        //SRR8811960_1.fastq.hdbscan.tsv
+        //SRR8811960_1.fastq.bin_rl_filter.tsv
+        //SRR8811960_1.unclassified.fasta
 
         //flye
 
