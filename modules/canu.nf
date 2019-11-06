@@ -8,8 +8,9 @@ process canu {
   script:
     """
     GSIZE=\$(cat ${gsize})
+    BIN=$(echo "${gsize}" | sed 's/${name}.//g' | sed 's/.gsize//g')
     canu -p ${name} -d canu_results maxThreads=${task.cpus} maxMemory=8 genomeSize=\${GSIZE} -correct corOutCoverage=400 stopOnLowCoverage=0 -nanopore-raw ${fastq}
-    mv canu_results/${name}.contigs.fasta ${name}.canu.fasta
+    mv canu_results/${name}.contigs.fasta ${name}.\${BIN}.canu.fasta
     """
   }
 
