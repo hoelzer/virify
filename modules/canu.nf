@@ -8,7 +8,7 @@ process canu {
   script:
     """
     GSIZE=\$(cat ${gsize})
-    canu -p ${name} -d canu_results maxThreads=${task.cpus} maxMemory=20 genomeSize=\${GSIZE} -correct corOutCoverage=400 stopOnLowCoverage=0 -nanopore-raw ${fastq}
+    canu -p ${name} -d canu_results maxThreads=${task.cpus} maxMemory="${task.memory}" genomeSize=\${GSIZE} -correct corOutCoverage=400 stopOnLowCoverage=0 -nanopore-raw ${fastq}
     mv canu_results/${name}.contigs.fasta ${name}.canu.fasta
     """
   }
