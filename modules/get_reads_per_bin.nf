@@ -12,7 +12,7 @@ process get_reads_per_bin {
     //  tuple val(name), file("${name}.bin-*.fastq")
     script:
     '''
-    echo ${filtered_bins} > foo
+    echo !{filtered_bins} > foo
     '''
     /*shell:
     '''
