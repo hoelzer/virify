@@ -8,8 +8,8 @@ process add_virus_ids {
     //output:
       //tuple val(name), file("${name}.unclassified.viruses")
     
-    shell:
-      '''
+    script:
+      """
       #!/usr/bin/env ruby
 
       `wget https://www.rna.uni-jena.de/supplements/viruses.taxids`
@@ -26,20 +26,20 @@ process add_virus_ids {
 
       hits = File.open('${kaiju_out}','r')
       hits.each do |l|
-        s = l.split("\t")
+        s = l.split("\\t")
         next if s[0].chomp == "U"
         read_id = s[1].chomp
         tax_id = s[2].chomp
         if virus_ids.include?(tax_id)
-          out_viruses << read_id << "\n"
+          out_viruses << read_id << "\\n"
         else
-          out_classified << read_id << "\n"
+          out_classified << read_id << "\\n"
         end
       end
       hits.close
       out_viruses.close
       out_classified.close
-      '''
+      """
 }
 
 /*
