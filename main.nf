@@ -299,7 +299,7 @@ workflow {
 
     // nanopore data
     if (params.nano && !params.illumina) { 
-        //detection_nanopore(nano_input_ch, kaiju_db)           
+        detection_nanopore(nano_input_ch, kaiju_db)           
     }
 
     // hybrid data
