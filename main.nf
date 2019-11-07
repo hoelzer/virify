@@ -49,7 +49,7 @@ add csv instead. name,path   or name,pathR1,pathR2 in case of illumina
                 .view() }
         else if (params.nano) { nano_input_ch = Channel
                 .fromPath( params.nano, checkIfExists: true)
-                .map { file -> tuple(file.baseName, file) }
+                .map { file -> tuple(file.simpleName, file) }
                 .view() }
 
     // illumina reads input & --list support
@@ -70,7 +70,7 @@ add csv instead. name,path   or name,pathR1,pathR2 in case of illumina
                 .view() }
         else if (params.fasta) { fasta_input_ch = Channel
                 .fromPath( params.fasta, checkIfExists: true)
-                .map { file -> tuple(file.baseName, file) }
+                .map { file -> tuple(file.simpleName, file) }
                 .view() }
 
 /************************** 
@@ -299,7 +299,7 @@ workflow {
 
     // nanopore data
     if (params.nano && !params.illumina) { 
-        detection_nanopore(nano_input_ch, kaiju_db)           
+        //detection_nanopore(nano_input_ch, kaiju_db)           
     }
 
     // hybrid data
