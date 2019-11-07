@@ -1,6 +1,6 @@
 process add_virus_ids {
       //publishDir "${params.output}/${name}/", mode: 'copy', pattern: "${name}.unclassified.viruses"
-      label 'ucsc'
+      label 'ruby'
 
     input:
       tuple val(name), file(kaiju_out), file(kaiju_unclassified) 
@@ -10,7 +10,17 @@ process add_virus_ids {
     
     shell:
       '''
-      wget https://www.rna.uni-jena.de/supplements/viruses.taxids
+      #!/usr/bin/env ruby
+
+      `wget https://www.rna.uni-jena.de/supplements/viruses.taxids`
+      
+      virus_ids = []
+      viruses = File.open('viruses.taxids','r')
+      viruses.each do |l|
+        virus_ids.push(l.chomp)
+      end
+      viruses.close
+
       
       
       
