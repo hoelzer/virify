@@ -1,6 +1,6 @@
 process add_virus_ids {
       //publishDir "${params.output}/${name}/", mode: 'copy', pattern: "${name}.unclassified.viruses"
-      label 'ubuntu'
+      label 'ucsc'
 
     input:
       tuple val(name), file(unclassified) 

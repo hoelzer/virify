@@ -213,8 +213,8 @@ workflow detection_nanopore {
         //flye.out[0].view()
 
         //canu
-        canu(get_reads_per_bin.out[0].transpose())
-        canu.out.view()
+        //canu(get_reads_per_bin.out[0].transpose())
+        //canu.out.view()
 
         //Bandage?
 
