@@ -3,8 +3,8 @@ process add_virus_ids {
       label 'ucsc'
 
     input:
-      tuple val(name), file(unclassified) 
-    
+      tuple val(name), file(kaiju_out), file(kaiju_unclassified) 
+
     //output:
       //tuple val(name), file("${name}.unclassified.viruses")
     

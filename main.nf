@@ -186,13 +186,13 @@ workflow detection_nanopore {
         kaiju(filtlong(nanopore_reads), kaiju_db)
 
         //add virus classified reads to the read list
-        add_virus_ids(kaiju.out[0])
+        add_virus_ids(kaiju.out[0].join(kaiju.out[1]))
 
         //krona
-        krona(kaiju.out[1])
+        krona(kaiju.out[2])
 
         //kmer frequencies
-        filter_reads(kaiju.out[0].join(filtlong.out))
+        filter_reads(kaiju.out[1].join(filtlong.out))
         kmerfreq(filter_reads.out[0])
 
         //UMAP

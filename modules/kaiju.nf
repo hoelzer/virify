@@ -7,6 +7,7 @@ process kaiju {
       file(database) 
     
     output:
+      tuple val(name), file("${name}.out")
       tuple val(name), file("${name}.out.unclassified")
       tuple val(name), file("${name}.out.krona")
     
