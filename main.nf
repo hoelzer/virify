@@ -93,7 +93,7 @@ include './modules/umap' params(output: params.output)
 include './modules/hdbscan' params(output: params.output)
 include './modules/filter_bins' params(output: params.output)
 include './modules/get_reads_per_bin' params(output: params.output)
-include './modules/add_virus_ids' params(output: params.output)
+include './modules/filter_kaiju' params(output: params.output)
 
 //qc
 include './modules/fastp'
@@ -186,13 +186,14 @@ workflow detection_nanopore {
         kaiju(filtlong(nanopore_reads), kaiju_db)
 
         //add virus classified reads to the read list
-        add_virus_ids(kaiju.out[0].join(kaiju.out[1]))
+        filter_kaiju(kaiju.out[0])
 
         //krona
-        krona(kaiju.out[2])
+        krona(kaiju.out[1])
 
         //kmer frequencies
-        filter_reads(kaiju.out[1].join(filtlong.out))
+        //TODO run this in parallel for filter_kaiju.out[0] (cellular) and filter_kaiju.out[1] (noncellular)
+        filter_reads(filter_kaiju.out[1].join(filtlong.out))
         kmerfreq(filter_reads.out[0])
 
         //UMAP
