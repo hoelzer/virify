@@ -21,9 +21,24 @@ process add_virus_ids {
       end
       viruses.close
 
-      
-      
-      
+      out_viruses = File.open("${name}.out.viruses",'w')
+      out_classified = File.open("${name}.out.classified",'w')
+
+      hits = File.open('${kaiju_out}','r')
+      hits.each do |l|
+        s = l.split("\t")
+        next if s[0].chomp == "U"
+        read_id = s[1].chomp
+        tax_id = s[2].chomp
+        if virus_ids.include?(tax_id)
+          out_viruses << read_id << "\n"
+        else
+          out_classified << read_id << "\n"
+        end
+      end
+      hits.close
+      out_viruses.close
+      out_classified.close
       '''
 }
 
