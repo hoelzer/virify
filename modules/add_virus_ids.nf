@@ -1,4 +1,4 @@
-process get_virus_ids {
+process add_virus_ids {
       //publishDir "${params.output}/${name}/", mode: 'copy', pattern: "${name}.unclassified.viruses"
       label 'ubuntu'
 
