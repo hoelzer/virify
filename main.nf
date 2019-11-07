@@ -93,6 +93,7 @@ include './modules/umap' params(output: params.output)
 include './modules/hdbscan' params(output: params.output)
 include './modules/filter_bins' params(output: params.output)
 include './modules/get_reads_per_bin' params(output: params.output)
+include './modules/add_virus_ids' params(output: params.output)
 
 //qc
 include './modules/fastp'
