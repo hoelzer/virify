@@ -48,6 +48,7 @@ process filter_kaiju {
       out_unclassified.close
 
       `cat ${name}.out.unclassified ${name}.out.viruses > ${name}.out.noncellular`
+      `rm ${name}.out.unclassified`
       """
 }
 
