@@ -77,6 +77,11 @@ include './modules/virsorter' params(output: params.output, dir: params.virusdir
 include './modules/virfinder' params(output: params.output, dir: params.virusdir)
 include './modules/kaiju' params(output: params.output, illumina: params.illumina, fasta: params.fasta)
 include './modules/filter_reads' params(output: params.output)
+include './modules/length_filtering' params(output: params.output)
+include './modules/parse' params(output: params.output)
+include './modules/prodigal' params(output: params.output)
+include './modules/hmmscan' params(output: params.output)
+include './modules/hmm_postprocessing' params(output: params.output)
 
 //visuals
 include './modules/krona' params(output: params.output)
@@ -94,13 +99,15 @@ It is written for local use and cloud use.*/
 workflow download_virsorter_db {
     main:
     // local storage via storeDir
+    if (params.virsorter_db) { db = file(params.virsorter_db) }
+    else {
     if (!params.cloudProcess) { virsorterGetDB(); db = virsorterGetDB.out }
     // cloud storage via db_preload.exists()
     if (params.cloudProcess) {
       db_preload = file("${params.cloudDatabase}/virsorter/virsorter-data")
       if (db_preload.exists()) { db = db_preload }
       else  { virsorterGetDB(); db = virsorterGetDB.out } 
-    }
+    }}
   emit: db    
 }
 
@@ -130,15 +137,21 @@ workflow detection {
 
     main:
         // filter contigs by length
+        length_filtering(assembly)
 
         // virus detection --> VirSorter and VirFinder
-        virsorter(assembly, virsorter_db)     
-        //virfinder(fasta_input_ch)
+        virsorter(length_filtering.out, virsorter_db)     
+        virfinder(length_filtering.out)
+
+        // parsing predictions
+        parse(length_filtering.out, virfinder.out, virsorter.out)
 
         // ORF detection --> prodigal
+        prodigal(parse.out)
 
         // annotation --> hmmer
-
+        hmmscan(prodigal.out)
+        hmm_postprocessing(hmmscan.out)
 }
 
 

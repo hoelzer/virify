@@ -7,6 +7,6 @@ process virfinder {
       tuple val(name), file("${name}.txt")
     script:
       """
-      virfinderGO.R ${fasta} > ${name}.txt
+      Rscript run_virfinder.Rscript ${fasta} ${name}.txt
       """
 }
