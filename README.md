@@ -1,6 +1,6 @@
 # VIRify
 
-A nextflow implementation of the EBI VIRify pipeline for the detection of viruses from metagenomic samples.
+A nextflow implementation of the EBI VIRify pipeline for the detection of viruses from assemblies.
 
 ## Basic execution
 
