@@ -99,15 +99,13 @@ It is written for local use and cloud use.*/
 workflow download_virsorter_db {
     main:
     // local storage via storeDir
-    if (params.virsorter_db) { db = file(params.virsorter_db) }
-    else {
     if (!params.cloudProcess) { virsorterGetDB(); db = virsorterGetDB.out }
     // cloud storage via db_preload.exists()
     if (params.cloudProcess) {
       db_preload = file("${params.cloudDatabase}/virsorter/virsorter-data")
       if (db_preload.exists()) { db = db_preload }
       else  { virsorterGetDB(); db = virsorterGetDB.out } 
-    }}
+    }
   emit: db    
 }
 
@@ -183,8 +181,12 @@ workflow assembly_illumina {
 /* Comment section: */
 
 workflow {
-    download_virsorter_db()
-    virsorter_db = download_virsorter_db.out
+    if (params.virsorter_db) {
+        virsorter_db = file(params.virsorter_db)
+    } else {
+        download_virsorter_db()
+        virsorter_db = download_virsorter_db.out
+    }
     
     //download_kaiju_db()
     //kaiju_db = download_kaiju_db.out
