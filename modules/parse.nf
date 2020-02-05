@@ -10,7 +10,7 @@ process parse {
     
     shell:
     """
-    python /parse_viral_pred.py -a ${fasta} -f ${virfinder} -s ${virsorter}
+    python /parse_viral_pred.py -a ${fasta} -f ${virfinder} -s virsorter/VIRSorter_global-phage-signal.csv
     """
 }
 

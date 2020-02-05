@@ -1,5 +1,5 @@
 process virsorter {
-      publishDir "${params.output}/${name}/${params.dir}/", mode: 'copy', pattern: "VIRSorter_global-phage-signal.csv"
+      publishDir "${params.output}/${name}/${params.dir}/", mode: 'copy', pattern: "*"
       label 'virsorter'
 
     input:
@@ -7,7 +7,7 @@ process virsorter {
       file(database) 
     
     output:
-      tuple val(name), file("VIRSorter_global-phage-signal.csv")
+      tuple val(name), file("*")
     
     script:
       """
