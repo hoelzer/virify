@@ -1,5 +1,5 @@
 process virsorterGetDB {
-  label 'ubuntu'    
+  label 'basics'    
   if (params.cloudProcess) { 
     publishDir "${params.cloudDatabase}/virsorter/", mode: 'copy', pattern: "virsorter-data" 
   }

@@ -70,6 +70,7 @@ add csv instead. name,path   or name,pathR1,pathR2 in case of illumina
 
 //db
 include './modules/virsorterGetDB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
+include './modules/viphogGetDB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
 include './modules/kaijuGetDB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
 
 //detection
@@ -82,6 +83,10 @@ include './modules/parse' params(output: params.output)
 include './modules/prodigal' params(output: params.output)
 include './modules/hmmscan' params(output: params.output)
 include './modules/hmm_postprocessing' params(output: params.output)
+include './modules/ratio_evalue' params(output: params.output)
+include './modules/annotation' params(output: params.output)
+include './modules/mapping' params(output: params.output)
+include './modules/assign' params(output: params.output)
 
 //visuals
 include './modules/krona' params(output: params.output)
@@ -109,6 +114,20 @@ workflow download_virsorter_db {
   emit: db    
 }
 
+workflow download_viphog_db {
+    main:
+    // local storage via storeDir
+    if (!params.cloudProcess) { viphogGetDB(); db = viphogGetDB.out }
+    // cloud storage via db_preload.exists()
+    if (params.cloudProcess) {
+      db_preload = file("${params.cloudDatabase}/vpHMM_database")
+      if (db_preload.exists()) { db = db_preload }
+      else  { viphogGetDB(); db = viphogGetDB.out } 
+    }
+  emit: db    
+}
+
+
 workflow download_kaiju_db {
     main:
     // local storage via storeDir
@@ -132,6 +151,7 @@ workflow download_kaiju_db {
 workflow detection {
     get:    assembly
             virsorter_db
+            viphog_db
 
     main:
         // filter contigs by length
@@ -148,8 +168,15 @@ workflow detection {
         prodigal(parse.out)
 
         // annotation --> hmmer
-        hmmscan(prodigal.out)
+        hmmscan(prodigal.out, viphog_db)
         hmm_postprocessing(hmmscan.out)
+
+        ratio_evalue(hmmscan.out)
+
+        annotation(ratio_evalue.out, prodigal.out)
+
+        mapping(annotation.out)
+        assign(annotation.out)
 }
 
 
@@ -181,19 +208,27 @@ workflow assembly_illumina {
 /* Comment section: */
 
 workflow {
-    if (params.virsorter_db) {
-        virsorter_db = file(params.virsorter_db)
+    if (params.virsorter) {
+        virsorter_db = file(params.virsorter)
     } else {
         download_virsorter_db()
         virsorter_db = download_virsorter_db.out
     }
-    
+
+    if (params.viphog) {
+        viphog_db = file(params.viphog)
+    } else {
+        download_viphog_db()
+        viphog_db = download_viphog_db.out
+    }
+
+
     //download_kaiju_db()
     //kaiju_db = download_kaiju_db.out
 
     // only detection based on an assembly
     if (params.fasta) {
-        detection(fasta_input_ch, virsorter_db)
+        detection(fasta_input_ch, virsorter_db, viphog_db)
     }
 
     // illumina data
@@ -234,7 +269,8 @@ def helpMSG() {
     --output            name of the result folder [default: $params.output]
 
     ${c_yellow}Parameters:${c_reset}
-    --virsorter         a virsorter database [default: $params.virsorter_db]
+    --virsorter         a virsorter database [default: $params.virsorter]
+    --viphog            a viphog database [default: $params.viphog]
 
     ${c_dim}Nextflow options:
     -with-report rep.html    cpu / ram usage (may cause errors)

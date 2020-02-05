@@ -4,12 +4,13 @@ process hmmscan {
 
     input:
       tuple val(name), file(faa) 
+      file(db)
     
     output:
       tuple val(name), file("${name}_hmmscan.tbl")
     
     shell:
     """
-      hmmscan -E "0.001" --domtblout ${name}_hmmscan.tbl /vpHMM_database/vpHMM_database --noali
+      hmmscan  --noali -E "0.001" --domtblout ${name}_hmmscan.tbl ${db} ${faa}
     """
 }
