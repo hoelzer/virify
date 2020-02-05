@@ -120,7 +120,7 @@ workflow download_viphog_db {
     if (!params.cloudProcess) { viphogGetDB(); db = viphogGetDB.out }
     // cloud storage via db_preload.exists()
     if (params.cloudProcess) {
-      db_preload = file("${params.cloudDatabase}/vpHMM_database")
+      db_preload = file("${params.cloudDatabase}/vpHMM_database/vpHMM_database")
       if (db_preload.exists()) { db = db_preload }
       else  { viphogGetDB(); db = viphogGetDB.out } 
     }
@@ -162,7 +162,7 @@ workflow detection {
         virfinder(length_filtering.out)
 
         // parsing predictions
-        parse(length_filtering.out, virfinder.out, virsorter.out)
+        parse(length_filtering.out.join(virfinder.out).join(virsorter.out))
 
         // ORF detection --> prodigal
         prodigal(parse.out)

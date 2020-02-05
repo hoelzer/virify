@@ -3,16 +3,14 @@ process parse {
       label 'parse'
 
     input:
-      tuple val(name), file(fasta)
-      file(virfinder) 
-      file(virsorter)
+      tuple val(name), file(fasta), file(virfinder), file(virsorter)
     
     output:
       tuple val(name), file("${name}.parsed.fna")
     
     shell:
     """
-    parse_viral_pred.py -a ${fasta} -f ${virfinder} -s ${virsorter}
+    python /parse_viral_pred.py -a ${fasta} -f ${virfinder} -s ${virsorter}
     """
 }
 
