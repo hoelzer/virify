@@ -69,40 +69,40 @@ add csv instead. name,path   or name,pathR1,pathR2 in case of illumina
 /* Comment section: */
 
 //db
-include './modules/virsorterGetDB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
-include './modules/viphogGetDB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
-include './modules/ncbiGetDB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
-include './modules/rvdbGetDB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
-include './modules/pvogsGetDB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
-include './modules/vogdbGetDB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
+include virsorterGetDB from './modules/virsorterGetDB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
+include viphogGetDB from './modules/viphogGetDB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
+include ncbiGetDB from './modules/ncbiGetDB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
+include rvdbGetDB from './modules/rvdbGetDB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
+include pvogsGetDB from './modules/pvogsGetDB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
+include vogdbGetDB from './modules/vogdbGetDB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
 //include './modules/kaijuGetDB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
 
 //assembly
-include './modules/fastp'
-include './modules/fastqc'
-include './modules/multiqc' params(output: params.output, dir: params.assemblydir)
-include './modules/spades' params(output: params.output, dir: params.assemblydir)
+include fastp from './modules/fastp'
+include fastqc from './modules/fastqc'
+include multiqc from './modules/multiqc' params(output: params.output, dir: params.assemblydir)
+include spades from './modules/spades' params(output: params.output, dir: params.assemblydir)
 
 
 //detection
-include './modules/virsorter' params(output: params.output, dir: params.virusdir)
-include './modules/virfinder' params(output: params.output, dir: params.virusdir)
-include './modules/length_filtering' params(output: params.output)
-include './modules/parse' params(output: params.output)
-include './modules/prodigal' params(output: params.output, dir: params.prodigaldir)
+include virsorter from './modules/virsorter' params(output: params.output, dir: params.virusdir)
+include virfinder from './modules/virfinder' params(output: params.output, dir: params.virusdir)
+include length_filtering from './modules/length_filtering' params(output: params.output)
+include parse from './modules/parse' params(output: params.output)
+include prodigal from './modules/prodigal' params(output: params.output, dir: params.prodigaldir)
 include hmmscan as hmmscan_viphogs from './modules/hmmscan' params(output: params.output, dir: params.hmmerdir, db: 'viphogs')
 include hmmscan as hmmscan_rvdb from './modules/hmmscan' params(output: params.output, dir: params.hmmerdir, db: 'rvdb')
 include hmmscan as hmmscan_pvogs from './modules/hmmscan' params(output: params.output, dir: params.hmmerdir, db: 'pvogs')
 include hmmscan as hmmscan_vogdb from './modules/hmmscan' params(output: params.output, dir: params.hmmerdir, db: 'vogdb')
 include hmmscan_cut_ga from './modules/hmmscan' params(output: params.output, dir: params.hmmerdir, db: 'viphogs')
-include './modules/hmm_postprocessing' params(output: params.output, dir: params.hmmerdir)
-include './modules/ratio_evalue' params(output: params.output)
-include './modules/annotation' params(output: params.output)
-include './modules/mapping' params(output: params.output, dir: params.plotdir)
-include './modules/assign' params(output: params.output, dir: params.taxdir)
+include hmm_postprocessing from './modules/hmm_postprocessing' params(output: params.output, dir: params.hmmerdir)
+include ratio_evalue from './modules/ratio_evalue' params(output: params.output)
+include annotation from './modules/annotation' params(output: params.output)
+include mapping from './modules/mapping' params(output: params.output, dir: params.plotdir)
+include assign from './modules/assign' params(output: params.output, dir: params.taxdir)
 
 //visuals
-include './modules/krona' params(output: params.output)
+include krona from './modules/krona' params(output: params.output)
 
 //include './modules/kaiju' params(output: params.output, illumina: params.illumina, fasta: params.fasta)
 //include './modules/filter_reads' params(output: params.output)
@@ -274,7 +274,7 @@ workflow assembly_illumina {
         // trimming --> fastp
         fastp(reads)
  
-        // read QC --> fastqc/multiqc?
+        // read QC --> fastqc/multiqc
         multiqc(fastqc(fastp.out))
 
         // assembly with asembler choice --> metaSPAdes
