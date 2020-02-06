@@ -163,7 +163,6 @@ workflow detection {
 
         // parsing predictions
         parse(length_filtering.out.join(virfinder.out).join(virsorter.out))
-        parse.out.transpose().view()
 
         // ORF detection --> prodigal
         prodigal(parse.out.transpose())
