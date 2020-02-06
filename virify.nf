@@ -353,7 +353,19 @@ def helpMSG() {
     -with-dag chart.html     generates a flowchart for the process tree
     -with-timeline time.html timeline (may cause errors)
 
-    Profile:
-    -profile                 standard, googlegenomics [default: standard] ${c_reset}
+    ${c_yellow}LSF computing:${c_reset}
+    For execution of the workflow on a HPC with LSF adjust the following parameters:
+    --databases         defines the path where databases are stored [default: $params.cloudDatabase]
+    --workdir           defines the path where nextflow writes tmp files [default: $params.workdir]
+    --cachedir          defines the path where images (singularity) are cached [default: $params.cachedir] 
+
+    ${c_yellow}Profile:${c_reset}
+    -profile                 standard (local, pure docker) [default]
+                             conda
+                             lsf (HPC w/ LSF, singularity/docker)
+                             ebi (HPC w/ LSF, singularity/docker, preconfigured for the EBI cluster)
+                             gcloudMartin (googlegenomics and docker, use this as template for your own GCP)
+                             ${c_reset}
+
     """.stripIndent()
 }
