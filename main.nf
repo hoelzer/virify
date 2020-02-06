@@ -163,9 +163,11 @@ workflow detection {
 
         // parsing predictions
         parse(length_filtering.out.join(virfinder.out).join(virsorter.out))
+        parse.out.view()
 
         // ORF detection --> prodigal
         prodigal(parse.out)
+        prodigal.out.view()
 
         // annotation --> hmmer
         hmmscan(prodigal.out, viphog_db)
