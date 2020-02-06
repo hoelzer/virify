@@ -3,11 +3,11 @@ process assign {
       label 'assign'
 
     input:
-      tuple val(name), file(tab)
+      tuple val(name), val(set_name), file(tab)
       file(db)
     
     output:
-      tuple val(name), file("*tax_assign.tsv")
+      file("*tax_assign.tsv")
     
     shell:
     """

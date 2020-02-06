@@ -1,5 +1,5 @@
 process hmmscan {
-      publishDir "${params.output}/${name}/", mode: 'copy', pattern: "${set_name}_hmmscan.tbl"
+      publishDir "${params.output}/${name}/${params.dir}/", mode: 'copy', pattern: "${set_name}_hmmscan.tbl"
       label 'hmmscan'
 
     input:

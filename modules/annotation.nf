@@ -6,7 +6,7 @@ process annotation {
       tuple val(name), val(set_name), file(tab), file(faa) 
     
     output:
-      tuple val(name), file("*_prot_ann_table.tsv")
+      tuple val(name), val(set_name), file("*_prot_ann_table.tsv")
     
     shell:
     """

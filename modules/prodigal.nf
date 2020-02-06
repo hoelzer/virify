@@ -1,5 +1,5 @@
 process prodigal {
-      publishDir "${params.output}/${name}/", mode: 'copy', pattern: "*.faa"
+      publishDir "${params.output}/${name}/${params.dir}", mode: 'copy', pattern: "*.faa"
       label 'prodigal'
 
     input:

@@ -1,6 +1,6 @@
 process ratio_evalue {
       errorStrategy { task.exitStatus = 1 ? 'ignore' :  'terminate' }
-      publishDir "${params.output}/${name}/", mode: 'copy', pattern: "${set_name}_modified_informative.tsv"
+      //publishDir "${params.output}/${name}/", mode: 'copy', pattern: "${set_name}_modified_informative.tsv"
       label 'ratio_evalue'
 
     input:

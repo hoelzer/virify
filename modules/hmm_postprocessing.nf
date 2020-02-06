@@ -1,5 +1,5 @@
 process hmm_postprocessing {
-      publishDir "${params.output}/${name}/", mode: 'copy', pattern: "${set_name}_modified.tbl"
+      publishDir "${params.output}/${name}/${params.dir}/", mode: 'copy', pattern: "${set_name}_modified.tbl"
       label 'hmm_postprocessing'
 
     input:

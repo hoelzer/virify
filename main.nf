@@ -72,25 +72,26 @@ add csv instead. name,path   or name,pathR1,pathR2 in case of illumina
 include './modules/virsorterGetDB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
 include './modules/viphogGetDB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
 include './modules/ncbiGetDB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
-include './modules/kaijuGetDB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
+//include './modules/kaijuGetDB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
 
 //detection
 include './modules/virsorter' params(output: params.output, dir: params.virusdir)
 include './modules/virfinder' params(output: params.output, dir: params.virusdir)
-include './modules/kaiju' params(output: params.output, illumina: params.illumina, fasta: params.fasta)
-include './modules/filter_reads' params(output: params.output)
 include './modules/length_filtering' params(output: params.output)
 include './modules/parse' params(output: params.output)
-include './modules/prodigal' params(output: params.output)
-include './modules/hmmscan' params(output: params.output)
-include './modules/hmm_postprocessing' params(output: params.output)
+include './modules/prodigal' params(output: params.output, dir: params.prodigaldir)
+include './modules/hmmscan' params(output: params.output, dir: params.hmmerdir)
+include './modules/hmm_postprocessing' params(output: params.output, dir: params.hmmerdir)
 include './modules/ratio_evalue' params(output: params.output)
 include './modules/annotation' params(output: params.output)
-include './modules/mapping' params(output: params.output)
+include './modules/mapping' params(output: params.output, dir: params.plotdir)
 include './modules/assign' params(output: params.output)
 
 //visuals
 include './modules/krona' params(output: params.output)
+
+//include './modules/kaiju' params(output: params.output, illumina: params.illumina, fasta: params.fasta)
+//include './modules/filter_reads' params(output: params.output)
 
 
 /************************** 
@@ -186,17 +187,18 @@ workflow detection {
 
         // annotation --> hmmer
         hmmscan(prodigal.out, viphog_db)
-        //hmmscan.out.collect().view()
         hmm_postprocessing(hmmscan.out)
-        //hmm_postprocessing.out.view()
 
+        // calculate hit qual per protein
         ratio_evalue(hmm_postprocessing.out)
-        //ratio_evalue.out.view()
 
-        //ratio_evalue.out.join(prodigal.out).view()
+        // annotate contigs based on ViPhOGs
         annotation(ratio_evalue.out)
 
+        // plot visuals --> PDFs
         mapping(annotation.out)
+
+        // assign lineages
         assign(annotation.out, ncbi_db)
 
 }
