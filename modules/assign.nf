@@ -10,7 +10,7 @@ process assign {
     
     shell:
     """
-    python contig_taxonomic_assign.py -i ${tab}
+    python /contig_taxonomic_assign.py -i ${tab}
     """
 }
 

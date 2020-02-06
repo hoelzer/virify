@@ -1,12 +1,12 @@
 process ratio_evalue {
-      publishDir "${params.output}/${name}/", mode: 'copy', pattern: "${name}_modified_informative.tsv"
+      publishDir "${params.output}/${name}/", mode: 'copy', pattern: "${set_name}_modified_informative.tsv"
       label 'ratio_evalue'
 
     input:
-      tuple val(name), file(modified_table) 
+      tuple val(name), val(set_name), file(modified_table) 
     
     output:
-      tuple val(name), file("${name}_modified_informative.tsv")
+      tuple val(name), val(set_name), file("${set_name}_modified_informative.tsv")
     
     shell:
     """

@@ -170,15 +170,18 @@ workflow detection {
 
         // annotation --> hmmer
         hmmscan(prodigal.out, viphog_db)
-        hmmscan.out.collect().view()
-        hmm_postprocessing(assembly, hmmscan.out.collect())
+        //hmmscan.out.collect().view()
+        hmm_postprocessing(hmmscan.out)
+        hmm_postprocessing.out.view()
 
         ratio_evalue(hmm_postprocessing.out)
+        ratio_evalue.out.view()
 
-        annotation(ratio_evalue.out, prodigal.out)
+/*        annotation(ratio_evalue.out, prodigal.out)
 
         mapping(annotation.out)
-        //assign(annotation.out)
+        assign(annotation.out)
+*/
 }
 
 
