@@ -12,6 +12,7 @@ process prodigal {
     """
     BN=\$(basename ${fasta} .fna)
     prodigal -p "meta" -a \${BN}_prodigal.faa -i ${fasta}
+    reset
     printf \$BN
     """
 }
