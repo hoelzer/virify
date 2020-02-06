@@ -12,7 +12,7 @@ process rvdbGetDB {
 
   script:
     """
-    wget -nH ftp://ftp.ebi.ac.uk/pub/databases/metagenomics/viral-pipeline/databases/rvdb_v17.0.tar.gz && tar -zxvf rvdb_v17.0.tar.gz
-    rm rvdb_v17.0.tar.gz
+    wget -nH ftp://ftp.ebi.ac.uk/pub/databases/metagenomics/viral-pipeline/databases/rvdb.tar.gz && tar -zxvf rvdb.tar.gz
+    rm rvdb.tar.gz
     """
 }

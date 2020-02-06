@@ -83,7 +83,11 @@ include './modules/virfinder' params(output: params.output, dir: params.virusdir
 include './modules/length_filtering' params(output: params.output)
 include './modules/parse' params(output: params.output)
 include './modules/prodigal' params(output: params.output, dir: params.prodigaldir)
-include './modules/hmmscan' params(output: params.output, dir: params.hmmerdir)
+include hmmscan as hmmscan_viphogs from './modules/hmmscan' params(output: params.output, dir: params.hmmerdir, db: 'viphogs')
+include hmmscan as hmmscan_rvdb from './modules/hmmscan' params(output: params.output, dir: params.hmmerdir, db: 'rvdb')
+include hmmscan as hmmscan_pvogs from './modules/hmmscan' params(output: params.output, dir: params.hmmerdir, db: 'pvogs')
+include hmmscan as hmmscan_vogdb from './modules/hmmscan' params(output: params.output, dir: params.hmmerdir, db: 'vogdb')
+include hmmscan_cut_ga from './modules/hmmscan' params(output: params.output, dir: params.hmmerdir, db: 'viphogs')
 include './modules/hmm_postprocessing' params(output: params.output, dir: params.hmmerdir)
 include './modules/ratio_evalue' params(output: params.output)
 include './modules/annotation' params(output: params.output)
@@ -151,7 +155,7 @@ workflow download_rvdb_db {
     if (!params.cloudProcess) { rvdbGetDB(); db = rvdbGetDB.out }
     // cloud storage via db_preload.exists()
     if (params.cloudProcess) {
-      db_preload = file("${params.cloudDatabase}/rvdb/U-RVDBv17.0-prot.hmm")
+      db_preload = file("${params.cloudDatabase}/rvdb")
       if (db_preload.exists()) { db = db_preload }
       else  { rvdbGetDB(); db = rvdbGetDB.out } 
     }
@@ -164,7 +168,7 @@ workflow download_pvogs_db {
     if (!params.cloudProcess) { pvogsGetDB(); db = pvogsGetDB.out }
     // cloud storage via db_preload.exists()
     if (params.cloudProcess) {
-      db_preload = file("${params.cloudDatabase}/pvogs/pvogs.hmm")
+      db_preload = file("${params.cloudDatabase}/pvogs")
       if (db_preload.exists()) { db = db_preload }
       else  { pvogsGetDB(); db = pvogsGetDB.out } 
     }
@@ -177,7 +181,7 @@ workflow download_vogdb_db {
     if (!params.cloudProcess) { vogdbGetDB(); db = vogdbGetDB.out }
     // cloud storage via db_preload.exists()
     if (params.cloudProcess) {
-      db_preload = file("${params.cloudDatabase}/vogdb/vogdb.hmm")
+      db_preload = file("${params.cloudDatabase}/vogdb")
       if (db_preload.exists()) { db = db_preload }
       else  { vogdbGetDB(); db = vogdbGetDB.out } 
     }
@@ -231,8 +235,8 @@ workflow detection {
         prodigal.out.view()
 
         // annotation --> hmmer
-        hmmscan(prodigal.out, viphog_db)
-        hmm_postprocessing(hmmscan.out)
+        hmmscan_viphogs(prodigal.out, viphog_db)
+        hmm_postprocessing(hmmscan_viphogs.out)
 
         // calculate hit qual per protein
         ratio_evalue(hmm_postprocessing.out)
@@ -245,6 +249,9 @@ workflow detection {
 
         // assign lineages
         assign(annotation.out, ncbi_db)
+
+        // hmmer additional databases
+        hmmscan_rvdb(prodigal.out, rvdb_db)
 
 }
 
@@ -277,6 +284,9 @@ workflow assembly_illumina {
 /* Comment section: */
 
 workflow {
+
+    /**************************************************************/
+    // download all databases
     if (params.virsorter) { virsorter_db = file(params.virsorter)} 
     else { download_virsorter_db(); virsorter_db = download_virsorter_db.out }
 
@@ -297,15 +307,17 @@ workflow {
 
     //download_kaiju_db()
     //kaiju_db = download_kaiju_db.out
+    /**************************************************************/
 
     // only detection based on an assembly
     if (params.fasta) {
         detection(fasta_input_ch, virsorter_db, viphog_db, ncbi_db, rvdb_db, pvogs_db, vogdb_db)
     }
 
-    // illumina data
+    // illumina data to build an assembly first
     if (params.illumina) { 
         assembly_illumina(illumina_input_ch)           
+        detection(assembly_illumina.out, virsorter_db, viphog_db, ncbi_db, rvdb_db, pvogs_db, vogdb_db)
     }
 
 }
@@ -347,6 +359,8 @@ def helpMSG() {
     --pvogs             the pVOGS, hmmpress'ed [default: $params.pvogs]
     --vogdb             the VOGDB, hmmpress'ed [default: $params.vogdb]
     --ncbi              a NCBI taxonomy database [default: $params.ncbi]
+    Important! If you provide your own hmmer database follow this format:
+    rvdb/rvdb.hmm --> <folder>/<name>.hmm && 'folder' == 'name'
 
     ${c_dim}Nextflow options:
     -with-report rep.html    cpu / ram usage (may cause errors)
