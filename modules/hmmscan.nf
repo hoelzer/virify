@@ -7,7 +7,7 @@ process hmmscan {
       file(db)
     
     output:
-      tuple val(name), val(set_name), file("${contig_set_name}_hmmscan.tbl")
+      tuple val(name), val(set_name), file("${set_name}_hmmscan.tbl")
     
     shell:
     """
