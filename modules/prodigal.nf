@@ -6,7 +6,7 @@ process prodigal {
       tuple val(name), file(fasta) 
     
     output:
-      tuple stdout, file("*.faa")
+      tuple val(name), stdout, file("*.faa")
     
     shell:
     """
