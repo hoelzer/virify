@@ -1,12 +1,12 @@
 process prodigal {
-      publishDir "${params.output}/${name}/", mode: 'copy', pattern: "${name}_prodigal.faa"
+      publishDir "${params.output}/${name}/", mode: 'copy', pattern: "*.faa"
       label 'prodigal'
 
     input:
       tuple val(name), file(fasta) 
     
     output:
-      tuple val("\$BN"), file("${name}_prodigal.faa")
+      tuple val("\$BN"), file("*.faa")
     
     shell:
     """
