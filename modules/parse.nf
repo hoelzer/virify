@@ -10,7 +10,7 @@ process parse {
     
     shell:
     """
-    python /parse_viral_pred.py -a ${fasta} -f ${virfinder} -s ${virsorter}/Predicted_viral_sequences/
+    parse_viral_pred.py -a ${fasta} -f ${virfinder} -s ${virsorter}/Predicted_viral_sequences/
     """
 }
 

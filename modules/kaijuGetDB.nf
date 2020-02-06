@@ -1,5 +1,5 @@
 process kaijuGetDB {
-  label 'kaiju'    
+  label 'noDocker'    
   if (params.cloudProcess) { 
     publishDir "${params.cloudDatabase}/kaiju/", mode: 'copy', pattern: "viruses"//pattern: "nr_euk" 
   }

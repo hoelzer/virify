@@ -1,5 +1,5 @@
 process virsorterGetDB {
-  label 'basics'    
+  label 'noDocker'    
   if (params.cloudProcess) { 
     publishDir "${params.cloudDatabase}/virsorter/", mode: 'copy', pattern: "virsorter-data" 
   }

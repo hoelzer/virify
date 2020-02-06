@@ -1,6 +1,6 @@
 process hmm_postprocessing {
       publishDir "${params.output}/${name}/${params.dir}/", mode: 'copy', pattern: "${set_name}_modified.tbl"
-      label 'hmm_postprocessing'
+      label 'basics'
 
     input:
       tuple val(name), val(set_name), file(hmmer_tbl), file(faa) 

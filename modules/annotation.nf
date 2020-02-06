@@ -10,7 +10,7 @@ process annotation {
     
     shell:
     """
-    python /viral_contigs_annotation.py -o . -p ${faa} -t ${tab} -n ${set_name}
+    viral_contigs_annotation.py -o . -p ${faa} -t ${tab} -n ${set_name}
     """
 }
 

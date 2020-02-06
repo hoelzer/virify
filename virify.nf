@@ -98,10 +98,11 @@ include hmmscan_cut_ga from './modules/hmmscan' params(output: params.output, di
 include hmm_postprocessing from './modules/hmm_postprocessing' params(output: params.output, dir: params.hmmerdir)
 include ratio_evalue from './modules/ratio_evalue' params(output: params.output)
 include annotation from './modules/annotation' params(output: params.output)
-include mapping from './modules/mapping' params(output: params.output, dir: params.plotdir)
 include assign from './modules/assign' params(output: params.output, dir: params.taxdir)
 
 //visuals
+include mapping from './modules/mapping' params(output: params.output, dir: params.plotdir)
+include generate_krona_table from './modules/generate_krona_table' params(output: params.output, dir: params.plotdir)
 include krona from './modules/krona' params(output: params.output)
 
 //include './modules/kaiju' params(output: params.output, illumina: params.illumina, fasta: params.fasta)
@@ -257,10 +258,14 @@ workflow detection {
         // assign lineages
         assign(annotation.out, ncbi_db)
 
+        // krona
+        krona(generate_krona_table(assign.out))
+
         // hmmer additional databases
         hmmscan_rvdb(prodigal.out, rvdb_db)
         hmmscan_pvogs(prodigal.out, pvogs_db)
         hmmscan_vogdb(prodigal.out, vogdb_db)
+
 }
 
 

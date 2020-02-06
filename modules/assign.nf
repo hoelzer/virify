@@ -7,7 +7,7 @@ process assign {
       file(db)
     
     output:
-      file("*tax_assign.tsv")
+      tuple val(name), val(set_name), file("*tax_assign.tsv")
     
     shell:
     """

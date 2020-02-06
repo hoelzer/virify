@@ -10,7 +10,7 @@ process length_filtering {
     
     shell:
     """    
-      python /filter_contigs_len.py -f ${fasta} -l 0.5 -o ./ 
+      filter_contigs_len.py -f ${fasta} -l 0.5 -o ./ 
     """
 }
 

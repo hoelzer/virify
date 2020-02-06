@@ -1,5 +1,5 @@
 process viphogGetDB {
-  label 'basics'    
+  label 'noDocker'    
   if (params.cloudProcess) { 
     publishDir "${params.cloudDatabase}/", mode: 'copy', pattern: "vpHMM_database" 
   }

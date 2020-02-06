@@ -1,5 +1,5 @@
 process ncbiGetDB {
-  label 'basics'    
+  label 'noDocker'    
   if (params.cloudProcess) { 
     publishDir "${params.cloudDatabase}/ncbi/", mode: 'copy', pattern: "ete3_ncbi_tax.sqlite" 
   }
