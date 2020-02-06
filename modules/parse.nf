@@ -1,16 +1,16 @@
 process parse {
-      publishDir "${params.output}/${name}/", mode: 'copy', pattern: "${name}.parsed.fna"
+      publishDir "${params.output}/${name}/", mode: 'copy', pattern: "*.fna"
       label 'parse'
 
     input:
       tuple val(name), file(fasta), file(virfinder), file(virsorter)
     
     output:
-      tuple val(name), file("${name}.parsed.fna")
+      tuple val(name), file("*.fna")
     
     shell:
     """
-    python /parse_viral_pred.py -a ${fasta} -f ${virfinder} -s ${virsorter}
+    python /parse_viral_pred.py -a ${fasta} -f ${virfinder} -s ${virsorter}/Predicted_viral_sequences/
     """
 }
 
