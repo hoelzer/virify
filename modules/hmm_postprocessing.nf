@@ -13,8 +13,8 @@ process hmm_postprocessing {
     sed '/^#/d; s/ \\+/\\t/g' ${hmm} > ${name}_modified.tbl
 
     echo "target name\\ttarget accession\\ttlen\\tquery name\\tquery accession\\tqlen\\tfull sequence E-value\\tfull sequence score\\tfull sequence bias\\t#\\tof\\tc-Evalue\\ti-Evalue\\tdomain score\\tdomain bias\\thmm coord from\\thmm coord to\\tali coord from\\tali coord to\\tenv coord from\\tenv coord to\\tacc\\tdescription of target" > tmp
-    cat ${name}_modified.faa >> tmp
-    mv tmp ${name}_modified.faa
+    cat ${name}_modified.tbl >> tmp
+    mv tmp ${name}_modified.tbl
     """
 }
 
