@@ -12,7 +12,7 @@ process viphogGetDB {
 
   script:
     """
-    wget -nH ftp://ftp.ebi.ac.uk/pub/databases/metagenomics/viral-pipeline/databases/vpHMM_database.tar.gz && tar -zxvf vpHMM_database.tar.gz
+    wget -nH ftp://ftp.ebi.ac.uk/pub/databases/metagenomics/viral-pipeline/hmmer_databases/vpHMM_database.tar.gz && tar -zxvf vpHMM_database.tar.gz
     rm vpHMM_database.tar.gz
     """
 }

@@ -12,7 +12,7 @@ process pvogsGetDB {
 
   script:
     """
-    wget -nH ftp://ftp.ebi.ac.uk/pub/databases/metagenomics/viral-pipeline/databases/pvogs.tar.gz && tar -zxvf pvogs.tar.gz
+    wget -nH ftp://ftp.ebi.ac.uk/pub/databases/metagenomics/viral-pipeline/hmmer_databases/pvogs.tar.gz && tar -zxvf pvogs.tar.gz
     rm pvogs.tar.gz
     """
 }
