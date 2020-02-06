@@ -6,12 +6,13 @@ process prodigal {
       tuple val(name), file(fasta) 
     
     output:
-      tuple env(BN), file("*.faa")
+      tuple stdout, file("*.faa")
     
     shell:
     """
     BN=\$(basename ${fasta} .fna)
     prodigal -p "meta" -a \${BN}_prodigal.faa -i ${fasta}
+    printf \$BN
     """
 }
 
