@@ -77,6 +77,13 @@ include './modules/pvogsGetDB' params(cloudProcess: params.cloudProcess, cloudDa
 include './modules/vogdbGetDB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
 //include './modules/kaijuGetDB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
 
+//assembly
+include './modules/fastp'
+include './modules/fastqc'
+include './modules/multiqc' params(output: params.output, dir: params.assemblydir)
+include './modules/spades' params(output: params.output, dir: params.assemblydir)
+
+
 //detection
 include './modules/virsorter' params(output: params.output, dir: params.virusdir)
 include './modules/virfinder' params(output: params.output, dir: params.virusdir)
