@@ -3,10 +3,10 @@ process hmm_postprocessing {
       label 'hmm_postprocessing'
 
     input:
-      tuple val(name), val(set_name), file(hmmer_tbl) 
+      tuple val(name), val(set_name), file(hmmer_tbl), file(faa) 
     
     output:
-      tuple val(name), val(set_name), file("${set_name}_modified.tbl")
+      tuple val(name), val(set_name), file("${set_name}_modified.tbl"), file(faa)
     
     shell:
     """

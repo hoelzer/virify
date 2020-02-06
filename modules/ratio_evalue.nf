@@ -1,12 +1,13 @@
 process ratio_evalue {
+      errorStrategy { task.exitStatus = 1 ? 'ignore' :  'terminate' }
       publishDir "${params.output}/${name}/", mode: 'copy', pattern: "${set_name}_modified_informative.tsv"
       label 'ratio_evalue'
 
     input:
-      tuple val(name), val(set_name), file(modified_table) 
+      tuple val(name), val(set_name), file(modified_table), file(faa) 
     
     output:
-      tuple val(name), val(set_name), file("${set_name}_modified_informative.tsv")
+      tuple val(name), val(set_name), file("${set_name}_modified_informative.tsv"), file(faa)
     
     shell:
     """
