@@ -15,7 +15,3 @@ process prodigal {
     printf "\$BN"
     """
 }
-
-
-
-//[PRJNA530103_raw_assembly, /hps/nobackup2/production/metagenomics/mhoelzer/nextflow-work-mhoelzer/df/522290fdefe55952cdd3438a7f1e46/High_confidence_putative_viral_contigs.fna]
