@@ -181,9 +181,9 @@ workflow detection {
         //ratio_evalue.out.join(prodigal.out).view()
         annotation(ratio_evalue.out)
 
-/*        mapping(annotation.out)
+        mapping(annotation.out)
         assign(annotation.out)
-*/
+
 }
 
 
