@@ -6,7 +6,7 @@ process prodigal {
       tuple val(name), file(fasta) 
     
     output:
-      tuple val("\$BN"), file("*.faa")
+      tuple env(BN), file("*.faa")
     
     shell:
     """
