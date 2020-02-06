@@ -4,13 +4,14 @@ process assign {
 
     input:
       tuple val(name), file(tab)
+      file(db)
     
     output:
       tuple val(name), file("*tax_assign.tsv")
     
     shell:
     """
-    python /contig_taxonomic_assign.py -i ${tab}
+    contig_taxonomic_assign.py -i ${tab} -d ${db}
     """
 }
 
