@@ -170,7 +170,7 @@ workflow detection {
 
         // annotation --> hmmer
         hmmscan(prodigal.out, viphog_db)
-        hmmscan.out.join().view()
+        hmmscan.out.collect().view()
         //hmm_postprocessing(hmmscan.out)
 
         //ratio_evalue(hmmscan.out)
