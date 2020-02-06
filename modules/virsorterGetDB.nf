@@ -11,7 +11,7 @@ process virsorterGetDB {
     file("virsorter-data")
   script:
     """
-    wget https://zenodo.org/record/1168727/files/virsorter-data-v2.tar.gz 
+    wget ftp://ftp.ebi.ac.uk/pub/databases/metagenomics/viral-pipeline/databases/virsorter-data-v2.tar.gz 
     tar -xvzf virsorter-data-v2.tar.gz
     rm virsorter-data-v2.tar.gz
     """

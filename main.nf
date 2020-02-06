@@ -72,6 +72,9 @@ add csv instead. name,path   or name,pathR1,pathR2 in case of illumina
 include './modules/virsorterGetDB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
 include './modules/viphogGetDB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
 include './modules/ncbiGetDB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
+include './modules/rvdbGetDB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
+include './modules/pvogsGetDB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
+include './modules/vogdbGetDB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
 //include './modules/kaijuGetDB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
 
 //detection
@@ -85,7 +88,7 @@ include './modules/hmm_postprocessing' params(output: params.output, dir: params
 include './modules/ratio_evalue' params(output: params.output)
 include './modules/annotation' params(output: params.output)
 include './modules/mapping' params(output: params.output, dir: params.plotdir)
-include './modules/assign' params(output: params.output)
+include './modules/assign' params(output: params.output, dir: params.taxdir)
 
 //visuals
 include './modules/krona' params(output: params.output)
@@ -142,7 +145,46 @@ workflow download_ncbi_db {
   emit: db    
 }
 
+workflow download_rvdb_db {
+    main:
+    // local storage via storeDir
+    if (!params.cloudProcess) { rvdbGetDB(); db = rvdbGetDB.out }
+    // cloud storage via db_preload.exists()
+    if (params.cloudProcess) {
+      db_preload = file("${params.cloudDatabase}/rvdb/U-RVDBv17.0-prot.hmm")
+      if (db_preload.exists()) { db = db_preload }
+      else  { rvdbGetDB(); db = rvdbGetDB.out } 
+    }
+  emit: db    
+}
 
+workflow download_pvogs_db {
+    main:
+    // local storage via storeDir
+    if (!params.cloudProcess) { pvogsGetDB(); db = pvogsGetDB.out }
+    // cloud storage via db_preload.exists()
+    if (params.cloudProcess) {
+      db_preload = file("${params.cloudDatabase}/pvogs/pvogs.hmm")
+      if (db_preload.exists()) { db = db_preload }
+      else  { pvogsGetDB(); db = pvogsGetDB.out } 
+    }
+  emit: db    
+}
+
+workflow download_vogdb_db {
+    main:
+    // local storage via storeDir
+    if (!params.cloudProcess) { vogdbGetDB(); db = vogdbGetDB.out }
+    // cloud storage via db_preload.exists()
+    if (params.cloudProcess) {
+      db_preload = file("${params.cloudDatabase}/vogdb/vogdb.hmm")
+      if (db_preload.exists()) { db = db_preload }
+      else  { vogdbGetDB(); db = vogdbGetDB.out } 
+    }
+  emit: db    
+}
+
+/*
 workflow download_kaiju_db {
     main:
     // local storage via storeDir
@@ -155,7 +197,7 @@ workflow download_kaiju_db {
     }
   emit: db    
 }
-
+*/
 
 /************************** 
 * SUB WORKFLOWS
@@ -168,6 +210,9 @@ workflow detection {
             virsorter_db
             viphog_db
             ncbi_db
+            rvdb_db
+            pvogs_db
+            vogdb_db
 
     main:
         // filter contigs by length
@@ -241,12 +286,21 @@ workflow {
     if (params.ncbi) { ncbi_db = file(params.ncbi)} 
     else {download_ncbi_db(); ncbi_db = download_ncbi_db.out }
 
+    if (params.rvdb) { rvdb_db = file(params.rvdb)} 
+    else {download_rvdb_db(); rvdb_db = download_rvdb_db.out }
+
+    if (params.pvogs) { pvogs_db = file(params.pvogs)} 
+    else {download_pvogs_db(); pvogs_db = download_pvogs_db.out }
+
+    if (params.vogdb) { vogdb_db = file(params.vogdb)} 
+    else {download_vogdb_db(); vogdb_db = download_vogdb_db.out }
+
     //download_kaiju_db()
     //kaiju_db = download_kaiju_db.out
 
     // only detection based on an assembly
     if (params.fasta) {
-        detection(fasta_input_ch, virsorter_db, viphog_db, ncbi_db)
+        detection(fasta_input_ch, virsorter_db, viphog_db, ncbi_db, rvdb_db, pvogs_db, vogdb_db)
     }
 
     // illumina data
@@ -288,7 +342,10 @@ def helpMSG() {
 
     ${c_yellow}Parameters:${c_reset}
     --virsorter         a virsorter database [default: $params.virsorter]
-    --viphog            a viphog database [default: $params.viphog]
+    --viphog            the ViPhOG database, hmmpress'ed [default: $params.viphog]
+    --rvdb              the RVDB, hmmpress'ed [default: $params.rvdb]
+    --pvogs             the pVOGS, hmmpress'ed [default: $params.pvogs]
+    --vogdb             the VOGDB, hmmpress'ed [default: $params.vogdb]
     --ncbi              a NCBI taxonomy database [default: $params.ncbi]
 
     ${c_dim}Nextflow options:
