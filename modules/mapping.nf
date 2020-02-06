@@ -10,7 +10,7 @@ process mapping {
     
     shell:
     """
-    Rscript Make_viral_contig_map.R -o ${name}_mapping_results -t ${tab}
+    Rscript /Make_viral_contig_map.R -o ${name}_mapping_results -t ${tab}
     """
 }
 

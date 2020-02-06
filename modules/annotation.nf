@@ -1,17 +1,17 @@
 process annotation {
-      publishDir "${params.output}/${name}/", mode: 'copy', pattern: "*_prot_ann_table.tsv"
+      publishDir "${params.output}/${assembly_name}/", mode: 'copy', pattern: "*_prot_ann_table.tsv"
       label 'annotation'
 
     input:
       tuple val(name), file(tab)
-      tuple val(name), file(faa) 
+      tuple val(assembly_name), val(contig_set_name), file(faa) 
     
     output:
-      tuple val(name), file("*_prot_ann_table.tsv")
+      tuple val(assembly_name), file("*_prot_ann_table.tsv")
     
     shell:
     """
-    python viral_contigs_annotation.py -o . -p ${faa} -t ${tab} -n ${name}
+    python /viral_contigs_annotation.py -o . -p ${faa} -t ${tab} -n ${assembly_name}
     """
 }
 
