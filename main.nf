@@ -165,20 +165,20 @@ workflow detection {
         parse(length_filtering.out.join(virfinder.out).join(virsorter.out))
 
         // ORF detection --> prodigal
-        prodigal(parse.out.transpose())
-        prodigal.out.view()
+        //prodigal(parse.out.transpose())
+        //prodigal.out.view()
 
         // annotation --> hmmer
-        hmmscan(prodigal.out, viphog_db)
-        hmmscan.out.view()
-        hmm_postprocessing(hmmscan.out)
+        //hmmscan(prodigal.out, viphog_db)
+        //hmmscan.out.view()
+        //hmm_postprocessing(hmmscan.out)
 
-        ratio_evalue(hmmscan.out)
+        //ratio_evalue(hmmscan.out)
 
-        annotation(ratio_evalue.out, prodigal.out)
+        //annotation(ratio_evalue.out, prodigal.out)
 
-        mapping(annotation.out)
-        assign(annotation.out)
+        //mapping(annotation.out)
+        //assign(annotation.out)
 }
 
 
