@@ -10,7 +10,7 @@ process ratio_evalue {
     
     shell:
     """
-    python Ratio_evalue_table.py -i ${modified_table} -o .
+    python /Ratio_evalue_table.py -i ${modified_table} -o .
     """
 }
 

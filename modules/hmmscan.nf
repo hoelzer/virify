@@ -11,6 +11,6 @@ process hmmscan {
     
     shell:
     """
-      hmmscan  --noali -E "0.001" --domtblout ${name}_hmmscan.tbl ${db}/vpHMM_database ${faa}
+      hmmscan --cpu ${task.cpus} --noali -E "0.001" --domtblout ${name}_hmmscan.tbl ${db}/vpHMM_database ${faa}
     """
 }
