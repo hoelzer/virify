@@ -262,9 +262,9 @@ workflow detection {
         krona(generate_krona_table(assign.out))
 
         // hmmer additional databases
-        hmmscan_rvdb(prodigal.out, rvdb_db)
-        hmmscan_pvogs(prodigal.out, pvogs_db)
-        hmmscan_vogdb(prodigal.out, vogdb_db)
+        //hmmscan_rvdb(prodigal.out, rvdb_db)
+        //hmmscan_pvogs(prodigal.out, pvogs_db)
+        //hmmscan_vogdb(prodigal.out, vogdb_db)
 
 }
 

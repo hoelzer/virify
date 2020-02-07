@@ -2,7 +2,7 @@
 
 import pandas as pd
 
-excel_file = pd.ExcelFile("/Additional_data_vpHMMs.xlsx")
+excel_file = pd.ExcelFile("Additional_data_vpHMMs.xlsx")
 
 excel_df = excel_file.parse("Sheet1")
 
