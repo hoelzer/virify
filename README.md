@@ -43,7 +43,7 @@ nextflow run hoelzer/virify --help
 
 Run annotation for a small assembly file (takes approximately 30min + time for database download; ~27 GB):
 ````
-nextflow run hoelzer/virify --fasta '~/.nextflow/assets/hoelzer/virify/example_data/all_pos_phage.fasta'
+nextflow run hoelzer/virify --fasta '~/.nextflow/assets/hoelzer/virify/example_data/assembly.fasta'
 ````
 
 ## Profiles
