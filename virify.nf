@@ -103,8 +103,8 @@ include assign from './modules/assign' params(output: params.output, dir: params
 //visuals
 include mapping from './modules/mapping' params(output: params.output, dir: params.plotdir)
 include generate_krona_table from './modules/generate_krona_table' params(output: params.output, dir: params.plotdir)
-include generate_sankey_json from './modules/generate_sankey_json' params(output: params.output, dir: params.plotdir, sankey: params.sankey)
 include krona from './modules/krona' params(output: params.output, dir: params.plotdir)
+include generate_sankey_json from './modules/generate_sankey_json' params(output: params.output, dir: params.plotdir, sankey: params.sankey)
 
 //include './modules/kaiju' params(output: params.output, illumina: params.illumina, fasta: params.fasta)
 //include './modules/filter_reads' params(output: params.output)
@@ -282,12 +282,14 @@ workflow annotation_wf {
 /* Comment section:
 */
 workflow plot_wf {
-    get:    assigned_lineages
+    get:
+      assigned_lineages
 
     main:
         // krona
+        combined_assigned_lineages = assigned_lineages.groupTuple().map { tuple(it[0], 'all', it[2]) }.concat(assigned_lineages)
         krona(
-          generate_krona_table(assigned_lineages)
+          generate_krona_table(combined_assigned_lineages)
         )
 
         // sankey
