@@ -220,12 +220,6 @@ workflow download_kaiju_db {
 */
 workflow detection {
     get:    assembly
-            virsorter_db
-            viphog_db
-            ncbi_db
-            rvdb_db
-            pvogs_db
-            vogdb_db
 
     main:
         // filter contigs by length
@@ -237,11 +231,27 @@ workflow detection {
 
         // parsing predictions
         parse(length_filtering.out.join(virfinder.out).join(virsorter.out))
-        //parse.out.transpose().view()
 
+    emit:
+        parse.out.transpose()
+}
+
+
+
+/* Comment section:
+*/
+workflow annotation {
+    get:    predicted_contigs
+            virsorter_db
+            viphog_db
+            ncbi_db
+            rvdb_db
+            pvogs_db
+            vogdb_db
+
+    main:
         // ORF detection --> prodigal
-        prodigal(parse.out.transpose())
-        prodigal.out.view()
+        prodigal(predicted_contigs)
 
         // annotation --> hmmer
         hmmscan_viphogs(prodigal.out, viphog_db)
@@ -259,18 +269,32 @@ workflow detection {
         // assign lineages
         assign(annotation.out, ncbi_db)
 
-        // krona
-        krona(generate_krona_table(assign.out))
-
-        // sankey
-        //generate_sankey_json(generate_krona_table.out)
-
         // hmmer additional databases
         hmmscan_rvdb(prodigal.out, rvdb_db)
         hmmscan_pvogs(prodigal.out, pvogs_db)
         hmmscan_vogdb(prodigal.out, vogdb_db)
 
+    emit:
+      assign.out
 }
+
+
+/* Comment section:
+*/
+workflow plot {
+    get:    assigned_lineages
+
+    main:
+        // krona
+        krona(
+          generate_krona_table(assigned_lineages)
+        )
+
+        // sankey
+        //generate_sankey_json(generate_krona_table.out)
+}
+
+
 
 
 /* Comment section:
@@ -328,13 +352,21 @@ workflow {
 
     // only detection based on an assembly
     if (params.fasta) {
-        detection(fasta_input_ch, virsorter_db, viphog_db, ncbi_db, rvdb_db, pvogs_db, vogdb_db)
+      plot(
+        annotation(
+          detection(fasta_input_ch), virsorter_db, viphog_db, ncbi_db, rvdb_db, pvogs_db, vogdb_db)
+        )
+      )
     }
 
     // illumina data to build an assembly first
     if (params.illumina) { 
-        assembly_illumina(illumina_input_ch)           
-        detection(assembly_illumina.out, virsorter_db, viphog_db, ncbi_db, rvdb_db, pvogs_db, vogdb_db)
+      assembly_illumina(illumina_input_ch)           
+      plot(
+        annotation(
+          detection(assembly_illumina.out), virsorter_db, viphog_db, ncbi_db, rvdb_db, pvogs_db, vogdb_db)
+        )
+      )
     }
 
 }
