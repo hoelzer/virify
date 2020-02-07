@@ -266,9 +266,9 @@ workflow detection {
         //generate_sankey_json(generate_krona_table.out)
 
         // hmmer additional databases
-        //hmmscan_rvdb(prodigal.out, rvdb_db)
-        //hmmscan_pvogs(prodigal.out, pvogs_db)
-        //hmmscan_vogdb(prodigal.out, vogdb_db)
+        hmmscan_rvdb(prodigal.out, rvdb_db)
+        hmmscan_pvogs(prodigal.out, pvogs_db)
+        hmmscan_vogdb(prodigal.out, vogdb_db)
 
 }
 
