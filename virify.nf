@@ -218,8 +218,9 @@ workflow download_kaiju_db {
 
 /* Comment section:
 */
-workflow detection {
+workflow detection_wf {
     get:    assembly
+            virsorter_db    
 
     main:
         // filter contigs by length
@@ -240,9 +241,8 @@ workflow detection {
 
 /* Comment section:
 */
-workflow annotation {
+workflow annotation_wf {
     get:    predicted_contigs
-            virsorter_db
             viphog_db
             ncbi_db
             rvdb_db
@@ -270,9 +270,9 @@ workflow annotation {
         assign(annotation.out, ncbi_db)
 
         // hmmer additional databases
-        hmmscan_rvdb(prodigal.out, rvdb_db)
-        hmmscan_pvogs(prodigal.out, pvogs_db)
-        hmmscan_vogdb(prodigal.out, vogdb_db)
+        //hmmscan_rvdb(prodigal.out, rvdb_db)
+        //hmmscan_pvogs(prodigal.out, pvogs_db)
+        //hmmscan_vogdb(prodigal.out, vogdb_db)
 
     emit:
       assign.out
@@ -281,7 +281,7 @@ workflow annotation {
 
 /* Comment section:
 */
-workflow plot {
+workflow plot_wf {
     get:    assigned_lineages
 
     main:
@@ -352,23 +352,20 @@ workflow {
 
     // only detection based on an assembly
     if (params.fasta) {
-      plot(
-        annotation(
-          detection(fasta_input_ch), virsorter_db, viphog_db, ncbi_db, rvdb_db, pvogs_db, vogdb_db)
-        )
+      plot_wf(
+        annotation_wf(
+          detection_wf(fasta_input_ch, virsorter_db), viphog_db, ncbi_db, rvdb_db, pvogs_db, vogdb_db)
       )
-    }
+    } 
 
     // illumina data to build an assembly first
     if (params.illumina) { 
       assembly_illumina(illumina_input_ch)           
-      plot(
-        annotation(
-          detection(assembly_illumina.out), virsorter_db, viphog_db, ncbi_db, rvdb_db, pvogs_db, vogdb_db)
-        )
+      plot_wf(
+        annotation_wf(
+          detection_wf(assembly_illumina.out, virsorter_db), viphog_db, ncbi_db, rvdb_db, pvogs_db, vogdb_db)
       )
     }
-
 }
 
 
