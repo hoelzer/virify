@@ -1,6 +1,6 @@
 process generate_krona_table {
       publishDir "${params.output}/${name}/${params.dir}", mode: 'copy', pattern: "${set_name}.krona.tsv"
-      label 'basics'
+      label 'python3'
 
     input:
       tuple val(name), val(set_name), file(tbl)

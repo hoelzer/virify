@@ -103,7 +103,8 @@ include assign from './modules/assign' params(output: params.output, dir: params
 //visuals
 include mapping from './modules/mapping' params(output: params.output, dir: params.plotdir)
 include generate_krona_table from './modules/generate_krona_table' params(output: params.output, dir: params.plotdir)
-include krona from './modules/krona' params(output: params.output)
+include generate_sankey_json from './modules/generate_sankey_json' params(output: params.output, dir: params.plotdir, sankey: params.sankey)
+include krona from './modules/krona' params(output: params.output, dir: params.plotdir)
 
 //include './modules/kaiju' params(output: params.output, illumina: params.illumina, fasta: params.fasta)
 //include './modules/filter_reads' params(output: params.output)
@@ -261,6 +262,9 @@ workflow detection {
         // krona
         krona(generate_krona_table(assign.out))
 
+        // sankey
+        //generate_sankey_json(generate_krona_table.out)
+
         // hmmer additional databases
         //hmmscan_rvdb(prodigal.out, rvdb_db)
         //hmmscan_pvogs(prodigal.out, pvogs_db)
@@ -374,6 +378,8 @@ def helpMSG() {
     --ncbi              a NCBI taxonomy database [default: $params.ncbi]
     Important! If you provide your own hmmer database follow this format:
     rvdb/rvdb.hmm --> <folder>/<name>.hmm && 'folder' == 'name'
+
+    --sankey            a cutoff for sankey plot, try and error [default: $params.sankey]
 
     ${c_dim}Nextflow options:
     -with-report rep.html    cpu / ram usage (may cause errors)
