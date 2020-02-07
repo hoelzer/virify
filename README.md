@@ -7,7 +7,7 @@ Email: hoelzer.martin@gmail.com
 # VIRify
 
 A nextflow implementation of the [EBI VIRify pipeline](https://github.com/EBI-Metagenomics/emg-viral-pipeline) for the detection of viruses from metagenomic assemblies.
-This implementation is heavily based on scripts and work by [Guillermo Rangel-Pineros](https://github.com/guille0387).
+This implementation is heavily based on scripts and work by [Guillermo Rangel-Pineros](https://github.com/guille0387) and the [EBI Sequence Families Team](https://www.ebi.ac.uk/about/people/rob-finn).
 
 ## Basic execution
 
