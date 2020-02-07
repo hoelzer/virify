@@ -1,0 +1,6 @@
+name: virfinder
+channels:
+  - bioconda
+  - conda-forge
+dependencies:
+  - r-virfinder=1.1

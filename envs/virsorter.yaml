@@ -1,7 +1,6 @@
-name: basics
+name: virsorter
 channels:
   - bioconda
   - conda-forge
 dependencies:
-  - python=3.7
-  - sed=4.7
+  - virsorter=1.0.6
