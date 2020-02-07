@@ -3,4 +3,4 @@ channels:
   - bioconda
   - conda-forge
 dependencies:
-  - virsorter=1.0.6
+  - virsorter=1.0.5
