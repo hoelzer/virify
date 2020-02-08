@@ -218,7 +218,7 @@ workflow download_kaiju_db {
 
 /* Comment section:
 */
-workflow detection_wf {
+workflow detect {
     get:    assembly
             virsorter_db    
 
@@ -241,7 +241,7 @@ workflow detection_wf {
 
 /* Comment section:
 */
-workflow annotation_wf {
+workflow annotate {
     get:    predicted_contigs
             viphog_db
             ncbi_db
@@ -281,7 +281,7 @@ workflow annotation_wf {
 
 /* Comment section:
 */
-workflow plot_wf {
+workflow plot {
     get:
       assigned_lineages
 
@@ -302,7 +302,7 @@ workflow plot_wf {
 /* Comment section:
 Maybe as an pre-step
 */
-workflow assembly_illumina {
+workflow assemble {
     get:    reads
 
     main:
@@ -354,18 +354,18 @@ workflow {
 
     // only detection based on an assembly
     if (params.fasta) {
-      plot_wf(
-        annotation_wf(
-          detection_wf(fasta_input_ch, virsorter_db), viphog_db, ncbi_db, rvdb_db, pvogs_db, vogdb_db)
+      plot(
+        annotate(
+          detect(fasta_input_ch, virsorter_db), viphog_db, ncbi_db, rvdb_db, pvogs_db, vogdb_db)
       )
     } 
 
     // illumina data to build an assembly first
     if (params.illumina) { 
       assembly_illumina(illumina_input_ch)           
-      plot_wf(
-        annotation_wf(
-          detection_wf(assembly_illumina.out, virsorter_db), viphog_db, ncbi_db, rvdb_db, pvogs_db, vogdb_db)
+      plot(
+        annotate(
+          detect(assembly_illumina.out, virsorter_db), viphog_db, ncbi_db, rvdb_db, pvogs_db, vogdb_db)
       )
     }
 }
@@ -411,6 +411,7 @@ def helpMSG() {
     rvdb/rvdb.hmm --> <folder>/<name>.hmm && 'folder' == 'name'
 
     --sankey            a cutoff for sankey plot, try and error [default: $params.sankey]
+    --chunk             WIP chunk FASTA files into smaller pieces for parallel calculation [default: $params.chunk]
 
     ${c_dim}Nextflow options:
     -with-report rep.html    cpu / ram usage (may cause errors)
