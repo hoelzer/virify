@@ -11,7 +11,7 @@ process virsorter {
     
     script:
       """
-      wrapper_phage_contigs_sorter_iPlant.pl -f ${fasta} --db 2 --wdir virsorter --ncpu ${task.cpus} --data-dir ${database}
+      perl /usr/local/bin/wrapper_phage_contigs_sorter_iPlant.pl -f ${fasta} --db 2 --wdir virsorter --ncpu ${task.cpus} --data-dir ${database}
       """
 }
 
