@@ -1,10 +1,12 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3.7
 
-import re
-import os
-import sys
 import argparse
+import os
+import re
+import sys
+
 from Bio import SeqIO
+
 
 def filter_contigs(**kwargs):
 	seq_records = SeqIO.parse(kwargs["contig_file"], "fasta")

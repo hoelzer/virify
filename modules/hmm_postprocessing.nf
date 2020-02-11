@@ -1,6 +1,6 @@
 process hmm_postprocessing {
       publishDir "${params.output}/${name}/${params.dir}/", mode: 'copy', pattern: "${set_name}_modified.tbl"
-      label 'basics'
+      label 'python3'
 
     input:
       tuple val(name), val(set_name), file(hmmer_tbl), file(faa) 
@@ -10,11 +10,7 @@ process hmm_postprocessing {
     
     shell:
     """
-    sed '/^#/d; s/ \\+/\\t/g' ${hmmer_tbl} > ${set_name}_modified.tbl
-
-    echo "target name\ttarget accession\ttlen\tquery name\tquery accession\tqlen\tfull sequence E-value\tfull sequence score\tfull sequence bias\t#\tof\tc-Evalue\ti-Evalue\tdomain score\tdomain bias\thmm coord from\thmm coord to\tali coord from\tali coord to\tenv coord from\tenv coord to\tacc\tdescription of target" > tmp
-    cat ${set_name}_modified.tbl >> tmp
-    mv tmp ${set_name}_modified.tbl
+    hmmscan_format_table.py -t ${hmmer_tbl} -o ${set_name}_modified.tbl
     """
 }
 

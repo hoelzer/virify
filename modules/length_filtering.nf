@@ -1,6 +1,6 @@
 process length_filtering {
       publishDir "${params.output}/${name}/", mode: 'copy', pattern: "${name}_filt*.fasta"
-      label 'filter'
+      label 'python3'
 
     input:
       tuple val(name), file(fasta) 

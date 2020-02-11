@@ -10,7 +10,7 @@ process mapping {
     
     shell:
     """
-    make_viral_contig_map.R -o ${set_name}_mapping_results -t ${tab}
+    plot_contigs_pdf.R -o ${set_name}_mapping_results -t ${tab}
     """
 }
 
