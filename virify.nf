@@ -101,7 +101,7 @@ include annotation from './modules/annotation' params(output: params.output)
 include assign from './modules/assign' params(output: params.output, dir: params.taxdir)
 
 //visuals
-include mapping from './modules/mapping' params(output: params.output, dir: params.plotdir)
+include plot_contig_map from './modules/plot_contig_map' params(output: params.output, dir: params.plotdir)
 include generate_krona_table from './modules/generate_krona_table' params(output: params.output, dir: params.plotdir)
 include krona from './modules/krona' params(output: params.output, dir: params.plotdir)
 include generate_sankey_json from './modules/generate_sankey_json' params(output: params.output, dir: params.plotdir, sankey: params.sankey)
@@ -264,7 +264,7 @@ workflow annotate {
         annotation(ratio_evalue.out)
 
         // plot visuals --> PDFs
-        mapping(annotation.out)
+        plot_contig_map(annotation.out)
 
         // assign lineages
         assign(annotation.out, ncbi_db)

@@ -174,17 +174,17 @@ if __name__ == "__main__":
         if len(viral_predictions[0]) > 0:
             SeqIO.write(viral_predictions[0], join(
                 args.outdir, "high_confidence_putative_viral_contigs.fna"), "fasta")
-            with open(join(args.outdir, "high_confidence_putative_names.fna"), 'w') as high_names:
+            with open(join(args.outdir, "high_confidence_putative_names.txt"), 'w') as high_names:
                 high_names.write(viral_predictions[3])
         if len(viral_predictions[1]) > 0:
             SeqIO.write(viral_predictions[1], join(
                 args.outdir, "low_confidence_putative_viral_contigs.fna"), "fasta")
-            with open(join(args.outdir, "low_confidence_putative_names.fna"), 'w') as low_names:
+            with open(join(args.outdir, "low_confidence_putative_names.txt"), 'w') as low_names:
                 low_names.write(viral_predictions[4])
         if len(viral_predictions[2]) > 0:
             SeqIO.write(viral_predictions[2], join(
                 args.outdir, "putative_prophages.fna"), "fasta")
-            with open(join(args.outdir, "putative_prophages_names.fna"), 'w') as proph_names:
+            with open(join(args.outdir, "putative_prophages_names.txt"), 'w') as proph_names:
                 proph_names.write(viral_predictions[5])
     else:
         print("Overall, no putative _viral contigs or prophages were detected in the analysed metagenomic assembly", file=sys.stderr)

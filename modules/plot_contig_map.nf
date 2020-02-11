@@ -1,6 +1,6 @@
-process mapping {
+process plot_contig_map {
       publishDir "${params.output}/${name}/${params.dir}/", mode: 'copy', pattern: "${set_name}_mapping_results"
-      label 'mapping'
+      label 'plot_contig_map'
 
     input:
       tuple val(name), val(set_name), file(tab)
