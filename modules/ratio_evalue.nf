@@ -11,8 +11,9 @@ process ratio_evalue {
     
     shell:
     """
-    wget ftp://ftp.ebi.ac.uk/pub/databases/metagenomics/viral-pipeline/Additional_data_vpHMMs.xlsx 
-    ratio_evalue_table.py -i ${modified_table} -o .
+    wget ftp://ftp.ebi.ac.uk/pub/databases/metagenomics/viral-pipeline/Additional_data_vpHMMs.xlsx
+    generate_vphmm_object.py -x Additional_data_vpHMMs.xlsx -o Additional_data_vpHMMs.dict
+    ratio_evalue_table.py -i ${modified_table} -t Additional_data_vpHMMs.dict -o .
     """
 }
 
