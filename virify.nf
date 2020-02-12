@@ -255,7 +255,7 @@ workflow annotate {
     main:
         // ORF detection --> prodigal
         prodigal(predicted_contigs)
-        phanotate(predicted_contigs)
+        //phanotate(predicted_contigs)
 
         // annotation --> hmmer
         hmmscan_viphogs(prodigal.out, viphog_db)
