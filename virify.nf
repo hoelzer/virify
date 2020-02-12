@@ -93,6 +93,7 @@ include virfinder from './modules/virfinder' params(output: params.output, dir: 
 include length_filtering from './modules/length_filtering' params(output: params.output)
 include parse from './modules/parse' params(output: params.output)
 include prodigal from './modules/prodigal' params(output: params.output, dir: params.prodigaldir)
+include phanotate from './modules/phanotate' params(output: params.output, dir: params.phanotatedir)
 include hmmscan as hmmscan_viphogs from './modules/hmmscan' params(output: params.output, dir: params.hmmerdir, db: 'viphogs', version: params.version)
 include hmmscan as hmmscan_rvdb from './modules/hmmscan' params(output: params.output, dir: params.hmmerdir, db: 'rvdb', version: params.version)
 include hmmscan as hmmscan_pvogs from './modules/hmmscan' params(output: params.output, dir: params.hmmerdir, db: 'pvogs', version: params.version)
@@ -254,6 +255,7 @@ workflow annotate {
     main:
         // ORF detection --> prodigal
         prodigal(predicted_contigs)
+        phanotate(predicted_contigs)
 
         // annotation --> hmmer
         hmmscan_viphogs(prodigal.out, viphog_db)
