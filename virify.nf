@@ -30,6 +30,9 @@ add csv instead. name,path   or name,pathR1,pathR2 in case of illumina
         println "\033[2mCPUs to use: $params.cores"
         println "Output dir name: $params.output\u001B[0m"
         println " "}
+        println "\033[2mDev ViPhOG database: $params.version"
+        println " "
+        
 
         if (params.help) { exit 0, helpMSG() }
         if (params.profile) {
@@ -70,7 +73,7 @@ add csv instead. name,path   or name,pathR1,pathR2 in case of illumina
 
 //db
 include virsorterGetDB from './modules/virsorterGetDB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
-include viphogGetDB from './modules/viphogGetDB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
+include viphogGetDB from './modules/viphogGetDB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase, version: params.version)
 include ncbiGetDB from './modules/ncbiGetDB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
 include rvdbGetDB from './modules/rvdbGetDB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
 include pvogsGetDB from './modules/pvogsGetDB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
@@ -138,7 +141,7 @@ workflow download_viphog_db {
     if (!params.cloudProcess) { viphogGetDB(); db = viphogGetDB.out }
     // cloud storage via db_preload.exists()
     if (params.cloudProcess) {
-      db_preload = file("${params.cloudDatabase}/vpHMM_database")
+      db_preload = file("${params.cloudDatabase}/vpHMM_database_${params.version}")
       if (db_preload.exists()) { db = db_preload }
       else  { viphogGetDB(); db = viphogGetDB.out } 
     }
@@ -413,6 +416,12 @@ def helpMSG() {
     --sankey            a cutoff for sankey plot, try and error [default: $params.sankey]
     --chunk             WIP chunk FASTA files into smaller pieces for parallel calculation [default: $params.chunk]
 
+    ${c_yellow}Developing:${c_reset}
+    --version         define the ViPhOG db version to be used [default: $params.version]
+                      v1: no additional bit score filter (--cut_ga not applied, just e-value filtered)
+                      v2: --cut_ga, min score used as sequence-specific GA, 3 bit trimmed for domain-specific GA
+                      v3: --cut_ga, like v2 but seq-specific GA trimmed by 3 bits if second best score is 'nan'
+
     ${c_dim}Nextflow options:
     -with-report rep.html    cpu / ram usage (may cause errors)
     -with-dag chart.html     generates a flowchart for the process tree
@@ -428,7 +437,10 @@ def helpMSG() {
     -profile                 standard (local, pure docker) [default]
                              conda
                              lsf (HPC w/ LSF, singularity/docker)
+                             slurm (HPC w/ SLURM, singularity/docker)
                              ebi (HPC w/ LSF, singularity/docker, preconfigured for the EBI cluster)
+                             ebi_cloud (HPC w/ LSF, conda, preconfigured for the EBI cluster)
+                             yoda_cloud (HPC w/ LSF, conda, preconfigured for the EBI YODA cluster)
                              gcloudMartin (googlegenomics and docker, use this as template for your own GCP)
                              ${c_reset}
 
