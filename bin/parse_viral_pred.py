@@ -32,7 +32,8 @@ def virus_parser(**kwargs):
 		print("Beginning the identification of high confidence viral predictions...")
 
 		VS_high_tuples = []
-		search_id = re.compile(r"VIRSorter_(\w+)-([a-z-]*cat_\d)")
+#		search_id = re.compile(r"VIRSorter_(\w+)-([a-z-]*cat_\d)")
+		search_id = re.compile(r"VIRSorter_(\w+)(:*)(\w+)(-*)(\w+)-([a-z-]*cat_\d)")
 		for item in VirSorter_viral_high:
 			if os.stat(item).st_size != 0:
 				with open(item) as input_file:
@@ -141,7 +142,8 @@ def virus_parser(**kwargs):
 			
 		print("Beginning the identification of prophage predictions")
 
-		search_id = re.compile(r"VIRSorter_(\w+)[a-z-]*_(gene_\d+_gene_\d+[0-9-]+cat_\d)")
+#		search_id = re.compile(r"VIRSorter_(\w+)[a-z-]*_(gene_\d+_gene_\d+[0-9-]+cat_\d)")
+		search_id = re.compile(r"VIRSorter_(\w+)(:*)(\w+)(-*)(\w+)[a-z-]*_(gene_\d+_gene_\d+[0-9-]+cat_\d)")
 		for item in VirSorter_prophages:
 			if os.stat(item).st_size != 0:
 				for prophage in SeqIO.parse(item, "fasta"):
