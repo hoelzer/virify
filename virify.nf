@@ -30,7 +30,7 @@ add csv instead. name,path   or name,pathR1,pathR2 in case of illumina
         println "\033[2mCPUs to use: $params.cores"
         println "Output dir name: $params.output\u001B[0m"
         println " "}
-        println "\033[2mDev ViPhOG database: $params.version"
+        println "\033[2mDev ViPhOG database: $params.version\u001B[0m"
         println " "
         
 
