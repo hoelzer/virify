@@ -1,4 +1,5 @@
 process virfinder {
+      errorStrategy { task.exitStatus = 1 ? 'ignore' :  'terminate' }
       publishDir "${params.output}/${name}/${params.dir}/virfinder", mode: 'copy', pattern: "${name}.txt"
       label 'virfinder'
     input:
