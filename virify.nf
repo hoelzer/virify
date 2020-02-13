@@ -221,7 +221,7 @@ workflow download_kaiju_db {
 /* Comment section:
 */
 workflow detect {
-    get:    assembly
+    take:   assembly
             virsorter_db    
 
     main:
@@ -244,7 +244,7 @@ workflow detect {
 /* Comment section:
 */
 workflow annotate {
-    get:    predicted_contigs
+    take:   predicted_contigs
             viphog_db
             ncbi_db
             rvdb_db
@@ -254,7 +254,7 @@ workflow annotate {
     main:
         // ORF detection --> prodigal
         prodigal(predicted_contigs)
-        phanotate(predicted_contigs)
+        //phanotate(predicted_contigs)
 
         // annotation --> hmmer
         hmmscan_viphogs(prodigal.out, viphog_db)
@@ -285,7 +285,7 @@ workflow annotate {
 /* Comment section:
 */
 workflow plot {
-    get:
+    take:
       assigned_lineages
 
     main:
@@ -306,7 +306,7 @@ workflow plot {
 Maybe as an pre-step
 */
 workflow assemble {
-    get:    reads
+    take:    reads
 
     main:
         // trimming --> fastp
