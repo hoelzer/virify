@@ -273,9 +273,9 @@ workflow annotate {
         assign(annotation.out, ncbi_db)
 
         // hmmer additional databases
-        //hmmscan_rvdb(prodigal.out, rvdb_db)
-        //hmmscan_pvogs(prodigal.out, pvogs_db)
-        //hmmscan_vogdb(prodigal.out, vogdb_db)
+        hmmscan_rvdb(prodigal.out, rvdb_db)
+        hmmscan_pvogs(prodigal.out, pvogs_db)
+        hmmscan_vogdb(prodigal.out, vogdb_db)
 
     emit:
       assign.out
