@@ -60,7 +60,7 @@ puts LC_viral_predictions.keys
 # Prophages
 Dir.glob("#{virsorter_dir}/VIRSorter_prophages_cat-[4,5].fasta").each do |fasta|
 	Bio::FastaFormat.open(fasta).each do |entry|
-		id = entry.definition.chomp.sub('VIRSorter_','').split('_')[0]
+		id = entry.definition.chomp.sub('VIRSorter_','').split('_')[0].sub('-circular','')
 		start = entry.definition.chomp.split('-')[1]
 		stop = entry.definition.chomp.split('-')[2]
 		id += " #{start}-#{stop}"
