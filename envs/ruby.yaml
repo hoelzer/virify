@@ -4,3 +4,4 @@ channels:
   - conda-forge
 dependencies:
   - ruby=2.6.5
+  - rb-bio=2.0.1

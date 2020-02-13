@@ -86,7 +86,6 @@ include fastqc from './modules/fastqc'
 include multiqc from './modules/multiqc' params(output: params.output, dir: params.assemblydir)
 include spades from './modules/spades' params(output: params.output, dir: params.assemblydir)
 
-
 //detection
 include virsorter from './modules/virsorter' params(output: params.output, dir: params.virusdir)
 include virfinder from './modules/virfinder' params(output: params.output, dir: params.virusdir)
@@ -255,7 +254,7 @@ workflow annotate {
     main:
         // ORF detection --> prodigal
         prodigal(predicted_contigs)
-        //phanotate(predicted_contigs)
+        phanotate(predicted_contigs)
 
         // annotation --> hmmer
         hmmscan_viphogs(prodigal.out, viphog_db)

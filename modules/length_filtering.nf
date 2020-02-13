@@ -1,16 +1,18 @@
 process length_filtering {
-      publishDir "${params.output}/${name}/", mode: 'copy', pattern: "${name}_filt*.fasta"
+      publishDir "${params.output}/${name}/", mode: 'copy', pattern: "${name}*_renamed.fasta"
       label 'python3'
 
     input:
       tuple val(name), file(fasta) 
     
     output:
-      tuple val(name), file("${name}_filt*.fasta")
+      tuple val(name), file("${name}*_renamed.fasta")
     
     shell:
     """    
-      filter_contigs_len.py -f ${fasta} -l 0.5 -o ./ 
+      LEN=500
+      filter_contigs_len.py -f ${fasta} -l 0.5 -o ./
+      awk '/^>/{print ">contig" ++i; next}{print}' < ${name}_filt\${LEN}bp.fasta > ${name}_filt\${LEN}bp_renamed.fasta 
     """
 }
 

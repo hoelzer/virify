@@ -17,8 +17,9 @@ process phanotate {
     make
 
     BN=\$(basename ${fasta} .fna)
-    phanotate.py -f fasta -o \${BN}_phanotate.fna ${fasta} > /dev/null
+    phanotate.py -f fasta -o \${BN}_phanotate.fna ../${fasta} > /dev/null
     transeq -sequence \${BN}_phanotate.fna -outseq \${BN}_phanotate.faa > /dev/null
+    cp \${BN}_phanotate.faa ../
     printf "\$BN"
     """
 }
