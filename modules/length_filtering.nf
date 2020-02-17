@@ -11,7 +11,12 @@ process length_filtering {
     shell:
     """    
       LEN=500
-      filter_contigs_len.py -f ${fasta} -l 0.5 -o ./
+      if [[ ${fasta} =~ \\.gz\$ ]]; then
+      	 zcat ${fasta} > ${name}.fasta
+      	 filter_contigs_len.py -f ${name}.fasta -l 0.5 -o ./
+      else
+      	 filter_contigs_len.py -f ${fasta} -l 0.5 -o ./
+      fi
       awk '/^>/{print ">contig" ++i; next}{print}' < ${name}_filt\${LEN}bp.fasta > ${name}_filt\${LEN}bp_renamed.fasta 
     """
 }
