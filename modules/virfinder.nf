@@ -9,6 +9,6 @@ process virfinder {
     script:
       """
       #Rscript /usr/local/bin/run_virfinder.Rscript ${fasta} ${name}.txt
-      run_virfinder.Rscript ${fasta} ${name}.txt
+      run_virfinder_non_parallel.Rscript ${fasta} ${name}.txt
       """
 }

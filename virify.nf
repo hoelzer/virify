@@ -30,6 +30,9 @@ add csv instead. name,path   or name,pathR1,pathR2 in case of illumina
         println "\033[2mCPUs to use: $params.cores"
         println "Output dir name: $params.output\u001B[0m"
         println " "}
+        println "\033[2mDev ViPhOG database: $params.version\u001B[0m"
+        println " "
+        
 
         if (params.help) { exit 0, helpMSG() }
         if (params.profile) {
@@ -70,11 +73,12 @@ add csv instead. name,path   or name,pathR1,pathR2 in case of illumina
 
 //db
 include virsorterGetDB from './modules/virsorterGetDB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
-include viphogGetDB from './modules/viphogGetDB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
+include viphogGetDB from './modules/viphogGetDB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase, version: params.version)
 include ncbiGetDB from './modules/ncbiGetDB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
 include rvdbGetDB from './modules/rvdbGetDB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
 include pvogsGetDB from './modules/pvogsGetDB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
 include vogdbGetDB from './modules/vogdbGetDB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
+include vpfGetDB from './modules/vpfGetDB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
 //include './modules/kaijuGetDB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
 
 //assembly
@@ -83,25 +87,25 @@ include fastqc from './modules/fastqc'
 include multiqc from './modules/multiqc' params(output: params.output, dir: params.assemblydir)
 include spades from './modules/spades' params(output: params.output, dir: params.assemblydir)
 
-
 //detection
 include virsorter from './modules/virsorter' params(output: params.output, dir: params.virusdir)
 include virfinder from './modules/virfinder' params(output: params.output, dir: params.virusdir)
 include length_filtering from './modules/length_filtering' params(output: params.output)
 include parse from './modules/parse' params(output: params.output)
 include prodigal from './modules/prodigal' params(output: params.output, dir: params.prodigaldir)
-include hmmscan as hmmscan_viphogs from './modules/hmmscan' params(output: params.output, dir: params.hmmerdir, db: 'viphogs')
-include hmmscan as hmmscan_rvdb from './modules/hmmscan' params(output: params.output, dir: params.hmmerdir, db: 'rvdb')
-include hmmscan as hmmscan_pvogs from './modules/hmmscan' params(output: params.output, dir: params.hmmerdir, db: 'pvogs')
-include hmmscan as hmmscan_vogdb from './modules/hmmscan' params(output: params.output, dir: params.hmmerdir, db: 'vogdb')
-include hmmscan_cut_ga from './modules/hmmscan' params(output: params.output, dir: params.hmmerdir, db: 'viphogs')
+include phanotate from './modules/phanotate' params(output: params.output, dir: params.phanotatedir)
+include hmmscan as hmmscan_viphogs from './modules/hmmscan' params(output: params.output, dir: params.hmmerdir, db: 'viphogs', version: params.version)
+include hmmscan as hmmscan_rvdb from './modules/hmmscan' params(output: params.output, dir: params.hmmerdir, db: 'rvdb', version: params.version)
+include hmmscan as hmmscan_pvogs from './modules/hmmscan' params(output: params.output, dir: params.hmmerdir, db: 'pvogs', version: params.version)
+include hmmscan as hmmscan_vogdb from './modules/hmmscan' params(output: params.output, dir: params.hmmerdir, db: 'vogdb', version: params.version)
+include hmmscan as hmmscan_vpf from './modules/hmmscan' params(output: params.output, dir: params.hmmerdir, db: 'vpf', version: params.version)
 include hmm_postprocessing from './modules/hmm_postprocessing' params(output: params.output, dir: params.hmmerdir)
 include ratio_evalue from './modules/ratio_evalue' params(output: params.output)
 include annotation from './modules/annotation' params(output: params.output)
 include assign from './modules/assign' params(output: params.output, dir: params.taxdir)
 
 //visuals
-include mapping from './modules/mapping' params(output: params.output, dir: params.plotdir)
+include plot_contig_map from './modules/plot_contig_map' params(output: params.output, dir: params.plotdir)
 include generate_krona_table from './modules/generate_krona_table' params(output: params.output, dir: params.plotdir)
 include krona from './modules/krona' params(output: params.output, dir: params.plotdir)
 include generate_sankey_json from './modules/generate_sankey_json' params(output: params.output, dir: params.plotdir, sankey: params.sankey)
@@ -138,7 +142,7 @@ workflow download_viphog_db {
     if (!params.cloudProcess) { viphogGetDB(); db = viphogGetDB.out }
     // cloud storage via db_preload.exists()
     if (params.cloudProcess) {
-      db_preload = file("${params.cloudDatabase}/vpHMM_database")
+      db_preload = file("${params.cloudDatabase}/vpHMM_database_${params.version}")
       if (db_preload.exists()) { db = db_preload }
       else  { viphogGetDB(); db = viphogGetDB.out } 
     }
@@ -197,6 +201,19 @@ workflow download_vogdb_db {
   emit: db    
 }
 
+workflow download_vpf_db {
+    main:
+    // local storage via storeDir
+    if (!params.cloudProcess) { vpfGetDB(); db = vpfGetDB.out }
+    // cloud storage via db_preload.exists()
+    if (params.cloudProcess) {
+      db_preload = file("${params.cloudDatabase}/vpf")
+      if (db_preload.exists()) { db = db_preload }
+      else  { vpfGetDB(); db = vpfGetDB.out } 
+    }
+  emit: db    
+}
+
 /*
 workflow download_kaiju_db {
     main:
@@ -219,7 +236,7 @@ workflow download_kaiju_db {
 /* Comment section:
 */
 workflow detect {
-    get:    assembly
+    take:   assembly
             virsorter_db    
 
     main:
@@ -242,16 +259,18 @@ workflow detect {
 /* Comment section:
 */
 workflow annotate {
-    get:    predicted_contigs
+    take:   predicted_contigs
             viphog_db
             ncbi_db
             rvdb_db
             pvogs_db
             vogdb_db
+            vpf_db
 
     main:
         // ORF detection --> prodigal
         prodigal(predicted_contigs)
+        //phanotate(predicted_contigs)
 
         // annotation --> hmmer
         hmmscan_viphogs(prodigal.out, viphog_db)
@@ -264,15 +283,16 @@ workflow annotate {
         annotation(ratio_evalue.out)
 
         // plot visuals --> PDFs
-        mapping(annotation.out)
+        plot_contig_map(annotation.out)
 
         // assign lineages
         assign(annotation.out, ncbi_db)
 
         // hmmer additional databases
-        //hmmscan_rvdb(prodigal.out, rvdb_db)
-        //hmmscan_pvogs(prodigal.out, pvogs_db)
-        //hmmscan_vogdb(prodigal.out, vogdb_db)
+        hmmscan_rvdb(prodigal.out, rvdb_db)
+        hmmscan_pvogs(prodigal.out, pvogs_db)
+        hmmscan_vogdb(prodigal.out, vogdb_db)
+        hmmscan_vpf(prodigal.out, vpf_db)
 
     emit:
       assign.out
@@ -282,7 +302,7 @@ workflow annotate {
 /* Comment section:
 */
 workflow plot {
-    get:
+    take:
       assigned_lineages
 
     main:
@@ -303,7 +323,7 @@ workflow plot {
 Maybe as an pre-step
 */
 workflow assemble {
-    get:    reads
+    take:    reads
 
     main:
         // trimming --> fastp
@@ -348,6 +368,9 @@ workflow {
     if (params.vogdb) { vogdb_db = file(params.vogdb)} 
     else {download_vogdb_db(); vogdb_db = download_vogdb_db.out }
 
+    if (params.vpf) { vpf_db = file(params.vpf)} 
+    else {download_vpf_db(); vpf_db = download_vpf_db.out }
+
     //download_kaiju_db()
     //kaiju_db = download_kaiju_db.out
     /**************************************************************/
@@ -356,7 +379,7 @@ workflow {
     if (params.fasta) {
       plot(
         annotate(
-          detect(fasta_input_ch, virsorter_db), viphog_db, ncbi_db, rvdb_db, pvogs_db, vogdb_db)
+          detect(fasta_input_ch, virsorter_db), viphog_db, ncbi_db, rvdb_db, pvogs_db, vogdb_db, vpf_db)
       )
     } 
 
@@ -365,7 +388,7 @@ workflow {
       assembly_illumina(illumina_input_ch)           
       plot(
         annotate(
-          detect(assembly_illumina.out, virsorter_db), viphog_db, ncbi_db, rvdb_db, pvogs_db, vogdb_db)
+          detect(assembly_illumina.out, virsorter_db), viphog_db, ncbi_db, rvdb_db, pvogs_db, vogdb_db, vpf_db)
       )
     }
 }
@@ -406,12 +429,19 @@ def helpMSG() {
     --rvdb              the RVDB, hmmpress'ed [default: $params.rvdb]
     --pvogs             the pVOGS, hmmpress'ed [default: $params.pvogs]
     --vogdb             the VOGDB, hmmpress'ed [default: $params.vogdb]
+    --vpf               the VPF from IMG/VR, hmmpress'ed [default: $params.vpf]
     --ncbi              a NCBI taxonomy database [default: $params.ncbi]
     Important! If you provide your own hmmer database follow this format:
     rvdb/rvdb.hmm --> <folder>/<name>.hmm && 'folder' == 'name'
 
     --sankey            a cutoff for sankey plot, try and error [default: $params.sankey]
     --chunk             WIP chunk FASTA files into smaller pieces for parallel calculation [default: $params.chunk]
+
+    ${c_yellow}Developing:${c_reset}
+    --version         define the ViPhOG db version to be used [default: $params.version]
+                      v1: no additional bit score filter (--cut_ga not applied, just e-value filtered)
+                      v2: --cut_ga, min score used as sequence-specific GA, 3 bit trimmed for domain-specific GA
+                      v3: --cut_ga, like v2 but seq-specific GA trimmed by 3 bits if second best score is 'nan'
 
     ${c_dim}Nextflow options:
     -with-report rep.html    cpu / ram usage (may cause errors)
@@ -428,7 +458,10 @@ def helpMSG() {
     -profile                 standard (local, pure docker) [default]
                              conda
                              lsf (HPC w/ LSF, singularity/docker)
+                             slurm (HPC w/ SLURM, singularity/docker)
                              ebi (HPC w/ LSF, singularity/docker, preconfigured for the EBI cluster)
+                             ebi_cloud (HPC w/ LSF, conda, preconfigured for the EBI cluster)
+                             yoda_cloud (HPC w/ LSF, conda, preconfigured for the EBI YODA cluster)
                              gcloudMartin (googlegenomics and docker, use this as template for your own GCP)
                              ${c_reset}
 
