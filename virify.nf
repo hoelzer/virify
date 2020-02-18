@@ -78,6 +78,7 @@ include ncbiGetDB from './modules/ncbiGetDB' params(cloudProcess: params.cloudPr
 include rvdbGetDB from './modules/rvdbGetDB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
 include pvogsGetDB from './modules/pvogsGetDB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
 include vogdbGetDB from './modules/vogdbGetDB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
+include vpfGetDB from './modules/vpfGetDB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
 //include './modules/kaijuGetDB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
 
 //assembly
@@ -97,6 +98,7 @@ include hmmscan as hmmscan_viphogs from './modules/hmmscan' params(output: param
 include hmmscan as hmmscan_rvdb from './modules/hmmscan' params(output: params.output, dir: params.hmmerdir, db: 'rvdb', version: params.version)
 include hmmscan as hmmscan_pvogs from './modules/hmmscan' params(output: params.output, dir: params.hmmerdir, db: 'pvogs', version: params.version)
 include hmmscan as hmmscan_vogdb from './modules/hmmscan' params(output: params.output, dir: params.hmmerdir, db: 'vogdb', version: params.version)
+include hmmscan as hmmscan_vpf from './modules/hmmscan' params(output: params.output, dir: params.hmmerdir, db: 'vpf', version: params.version)
 include hmm_postprocessing from './modules/hmm_postprocessing' params(output: params.output, dir: params.hmmerdir)
 include ratio_evalue from './modules/ratio_evalue' params(output: params.output)
 include annotation from './modules/annotation' params(output: params.output)
@@ -199,6 +201,19 @@ workflow download_vogdb_db {
   emit: db    
 }
 
+workflow download_vpf_db {
+    main:
+    // local storage via storeDir
+    if (!params.cloudProcess) { vpfGetDB(); db = vpfGetDB.out }
+    // cloud storage via db_preload.exists()
+    if (params.cloudProcess) {
+      db_preload = file("${params.cloudDatabase}/vpf")
+      if (db_preload.exists()) { db = db_preload }
+      else  { vpfGetDB(); db = vpfGetDB.out } 
+    }
+  emit: db    
+}
+
 /*
 workflow download_kaiju_db {
     main:
@@ -250,6 +265,7 @@ workflow annotate {
             rvdb_db
             pvogs_db
             vogdb_db
+            vpf_db
 
     main:
         // ORF detection --> prodigal
@@ -276,6 +292,7 @@ workflow annotate {
         hmmscan_rvdb(prodigal.out, rvdb_db)
         hmmscan_pvogs(prodigal.out, pvogs_db)
         hmmscan_vogdb(prodigal.out, vogdb_db)
+        hmmscan_vpf(prodigal.out, vpf_db)
 
     emit:
       assign.out
@@ -351,6 +368,9 @@ workflow {
     if (params.vogdb) { vogdb_db = file(params.vogdb)} 
     else {download_vogdb_db(); vogdb_db = download_vogdb_db.out }
 
+    if (params.vpf) { vpf_db = file(params.vpf)} 
+    else {download_vpf_db(); vpf_db = download_vpf_db.out }
+
     //download_kaiju_db()
     //kaiju_db = download_kaiju_db.out
     /**************************************************************/
@@ -359,7 +379,7 @@ workflow {
     if (params.fasta) {
       plot(
         annotate(
-          detect(fasta_input_ch, virsorter_db), viphog_db, ncbi_db, rvdb_db, pvogs_db, vogdb_db)
+          detect(fasta_input_ch, virsorter_db), viphog_db, ncbi_db, rvdb_db, pvogs_db, vogdb_db, vpf_db)
       )
     } 
 
@@ -368,7 +388,7 @@ workflow {
       assembly_illumina(illumina_input_ch)           
       plot(
         annotate(
-          detect(assembly_illumina.out, virsorter_db), viphog_db, ncbi_db, rvdb_db, pvogs_db, vogdb_db)
+          detect(assembly_illumina.out, virsorter_db), viphog_db, ncbi_db, rvdb_db, pvogs_db, vogdb_db, vpf_db)
       )
     }
 }
@@ -409,6 +429,7 @@ def helpMSG() {
     --rvdb              the RVDB, hmmpress'ed [default: $params.rvdb]
     --pvogs             the pVOGS, hmmpress'ed [default: $params.pvogs]
     --vogdb             the VOGDB, hmmpress'ed [default: $params.vogdb]
+    --vpf               the VPF from IMG/VR, hmmpress'ed [default: $params.vpf]
     --ncbi              a NCBI taxonomy database [default: $params.ncbi]
     Important! If you provide your own hmmer database follow this format:
     rvdb/rvdb.hmm --> <folder>/<name>.hmm && 'folder' == 'name'
