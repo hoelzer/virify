@@ -1,16 +1,15 @@
 process prodigal {
-      publishDir "${params.output}/${name}/${params.dir}", mode: 'copy', pattern: "*.faa"
+      publishDir "${params.output}/${assembly_name}/${params.dir}", mode: 'copy', pattern: "*.faa"
       label 'prodigal'
 
     input:
-      tuple val(name), file(fasta) 
+      tuple val(assembly_name), val(confidence_set_name), file(fasta) 
     
     output:
-      tuple val(name), env(BN), file("*.faa")
+      tuple val(assembly_name), val(confidence_set_name), file("*.faa")
     
     shell:
     """
-    BN=\$(basename ${fasta} .fna)
-    prodigal -p "meta" -a \${BN}_prodigal.faa -i ${fasta}
+    prodigal -p "meta" -a ${confidence_set_name}_prodigal.faa -i ${fasta}
     """
 }
