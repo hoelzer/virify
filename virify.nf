@@ -81,6 +81,10 @@ include vogdbGetDB from './modules/vogdbGetDB' params(cloudProcess: params.cloud
 include vpfGetDB from './modules/vpfGetDB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
 //include './modules/kaijuGetDB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
 
+//preprocessing
+include rename from './modules/rename'
+include restore from './modules/restore'
+
 //assembly
 include fastp from './modules/fastp'
 include fastqc from './modules/fastqc'
@@ -240,8 +244,11 @@ workflow detect {
             virsorter_db    
 
     main:
+        // rename contigs
+        rename(assembly)
+
         // filter contigs by length
-        length_filtering(assembly)
+        length_filtering(rename.out)
 
         // virus detection --> VirSorter and VirFinder
         virsorter(length_filtering.out, virsorter_db)     
@@ -250,8 +257,11 @@ workflow detect {
         // parsing predictions
         parse(length_filtering.out.join(virfinder.out).join(virsorter.out))
 
+        // restore contig names
+        restore(parse.out.join(rename.out).transpose())
+
     emit:
-        parse.out.transpose()
+        restore.out
 }
 
 

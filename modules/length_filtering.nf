@@ -1,23 +1,16 @@
 process length_filtering {
-      publishDir "${params.output}/${name}/", mode: 'copy', pattern: "${name}*_renamed.fasta"
+      publishDir "${params.output}/${name}/", mode: 'copy', pattern: "${name}*filt*.fasta"
       label 'python3'
 
     input:
-      tuple val(name), file(fasta) 
+      tuple val(name), file(fasta), file(map) 
     
     output:
-      tuple val(name), file("${name}*_renamed.fasta")
+      tuple val(name), file("${name}*filt*.fasta")
     
     shell:
     """    
-      LEN=500
-      if [[ ${fasta} =~ \\.gz\$ ]]; then
-      	 zcat ${fasta} > ${name}.fasta
-      	 filter_contigs_len.py -f ${name}.fasta -l 0.5 -o ./
-      else
-      	 filter_contigs_len.py -f ${fasta} -l 0.5 -o ./
-      fi
-      awk '/^>/{print ">contig" ++i; next}{print}' < ${name}_filt\${LEN}bp.fasta > ${name}_filt\${LEN}bp_renamed.fasta 
+      filter_contigs_len.py -f ${fasta} -l 0.5 -o ./
     """
 }
 
