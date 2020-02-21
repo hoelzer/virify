@@ -16,29 +16,34 @@ Second part is file channel input. This allows via --list to alter the input of 
 add csv instead. name,path   or name,pathR1,pathR2 in case of illumina
 */
 
-    // terminal prints
-        println " "
-        println "\u001B[32mProfile: $workflow.profile\033[0m"
-        println " "
-        println "\033[2mCurrent User: $workflow.userName"
-        println "Nextflow-version: $nextflow.version"
-        println "Starting time: $nextflow.timestamp"
-        println "Workdir location:"
-        println "  $workflow.workDir\u001B[0m"
-        println " "
-        if (workflow.profile == 'standard') {
-        println "\033[2mCPUs to use: $params.cores"
-        println "Output dir name: $params.output\u001B[0m"
-        println " "}
-        println "\033[2mDev ViPhOG database: $params.version\u001B[0m"
-        println " "
+// terminal prints
+println " "
+println "\u001B[32mProfile: $workflow.profile\033[0m"
+println " "
+println "\033[2mCurrent User: $workflow.userName"
+println "Nextflow-version: $nextflow.version"
+println "Starting time: $nextflow.timestamp"
+println "Workdir location:"
+println "  $workflow.workDir\u001B[0m"
+println " "
+if (workflow.profile == 'standard') {
+  println "\033[2mCPUs to use: $params.cores"
+  println "Output dir name: $params.output\u001B[0m"
+  println " "
+}
+println "\033[2mDev ViPhOG database: $params.version\u001B[0m"
+println " "
         
+if( !nextflow.version.matches('20.01+') ) {
+    println "This workflow requires Nextflow version 20.01 or greater -- You are running version $nextflow.version"
+    exit 1
+}
 
-        if (params.help) { exit 0, helpMSG() }
-        if (params.profile) {
-            exit 1, "--profile is WRONG use -profile" }
-        if (params.illumina == '' &&  params.fasta == '' ) {
-            exit 1, "input missing, use [--illumina] or [--fasta]"}
+if (params.help) { exit 0, helpMSG() }
+if (params.profile) {
+  exit 1, "--profile is WRONG use -profile" }
+if (params.illumina == '' &&  params.fasta == '' ) {
+  exit 1, "input missing, use [--illumina] or [--fasta]"}
 
 /************************** 
 * INPUT CHANNELS 
