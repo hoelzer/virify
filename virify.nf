@@ -325,12 +325,12 @@ workflow annotate {
         blast_filter(blast.out, imgvr_db)
 
         // hmmer additional databases
-        /*
+        
         hmmscan_rvdb(prodigal.out, rvdb_db)
         hmmscan_pvogs(prodigal.out, pvogs_db)
         hmmscan_vogdb(prodigal.out, vogdb_db)
         hmmscan_vpf(prodigal.out, vpf_db)
-        */
+        
     emit:
       assign.out
 }
