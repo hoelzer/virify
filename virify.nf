@@ -320,7 +320,7 @@ workflow annotate {
         assign(annotation.out, ncbi_db)
 
         // blast IMG/VR for more information
-        //blast(predicted_contigs, imgvr_db)
+        blast(predicted_contigs, imgvr_db)
 
         // hmmer additional databases
         /*
@@ -352,12 +352,10 @@ workflow plot {
 }
 
 
-
-
 /* Comment section:
 Maybe as an pre-step
 */
-workflow assemble {
+workflow assemble_illumina {
     take:    reads
 
     main:
@@ -423,10 +421,10 @@ workflow {
 
     // illumina data to build an assembly first
     if (params.illumina) { 
-      assembly_illumina(illumina_input_ch)           
+      assemble_illumina(illumina_input_ch)           
       plot(
         annotate(
-          detect(assembly_illumina.out, virsorter_db), viphog_db, ncbi_db, rvdb_db, pvogs_db, vogdb_db, vpf_db, imgvr_db)
+          detect(assemble_illumina.out, virsorter_db), viphog_db, ncbi_db, rvdb_db, pvogs_db, vogdb_db, vpf_db, imgvr_db)
       )
     }
 }
