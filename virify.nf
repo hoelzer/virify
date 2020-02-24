@@ -471,7 +471,9 @@ def helpMSG() {
     --ncbi              a NCBI taxonomy database, from ete3 import NCBITaxa [default: $params.ncbi]
     --imgvr             the IMG/VR, viral (meta)genome sequences [default: $params.imgvr]
     Important! If you provide your own hmmer database follow this format:
-    rvdb/rvdb.hmm --> <folder>/<name>.hmm && 'folder' == 'name'
+        rvdb/rvdb.hmm --> <folder>/<name>.hmm && 'folder' == 'name'
+    and provide the database following this command structure
+        --rvdb /path/to/your/rvdb
 
     ${c_yellow}Parameters:${c_reset}
     --virome            VirSorter parameter, set when running a data set mostly composed of viruses [default: $params.virome]
