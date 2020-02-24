@@ -77,47 +77,47 @@ if (params.illumina == '' &&  params.fasta == '' ) {
 /* Comment section: */
 
 //db
-include virsorterGetDB from './modules/virsorterGetDB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
-include viphogGetDB from './modules/viphogGetDB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase, version: params.version)
-include ncbiGetDB from './modules/ncbiGetDB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
-include rvdbGetDB from './modules/rvdbGetDB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
-include pvogsGetDB from './modules/pvogsGetDB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
-include vogdbGetDB from './modules/vogdbGetDB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
-include vpfGetDB from './modules/vpfGetDB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
+include virsorterGetDB from './modules/virsorterGetDB' 
+include viphogGetDB from './modules/viphogGetDB' 
+include ncbiGetDB from './modules/ncbiGetDB' 
+include rvdbGetDB from './modules/rvdbGetDB' 
+include pvogsGetDB from './modules/pvogsGetDB' 
+include vogdbGetDB from './modules/vogdbGetDB' 
+include vpfGetDB from './modules/vpfGetDB'
 //include './modules/kaijuGetDB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
 
 //preprocessing
 include rename from './modules/rename'
 include restore from './modules/restore'
 
-//assembly
+//assembly (optional)
 include fastp from './modules/fastp'
 include fastqc from './modules/fastqc'
-include multiqc from './modules/multiqc' params(output: params.output, dir: params.assemblydir)
-include spades from './modules/spades' params(output: params.output, dir: params.assemblydir)
+include multiqc from './modules/multiqc' 
+include spades from './modules/spades' 
 
 //detection
-include virsorter from './modules/virsorter' params(output: params.output, dir: params.virusdir)
-include virfinder from './modules/virfinder' params(output: params.output, dir: params.virusdir)
-include length_filtering from './modules/length_filtering' params(output: params.output)
-include parse from './modules/parse' params(output: params.output)
-include prodigal from './modules/prodigal' params(output: params.output, dir: params.prodigaldir)
-include phanotate from './modules/phanotate' params(output: params.output, dir: params.phanotatedir)
-include hmmscan as hmmscan_viphogs from './modules/hmmscan' params(output: params.output, dir: params.hmmerdir, db: 'viphogs', version: params.version)
-include hmmscan as hmmscan_rvdb from './modules/hmmscan' params(output: params.output, dir: params.hmmerdir, db: 'rvdb', version: params.version)
-include hmmscan as hmmscan_pvogs from './modules/hmmscan' params(output: params.output, dir: params.hmmerdir, db: 'pvogs', version: params.version)
-include hmmscan as hmmscan_vogdb from './modules/hmmscan' params(output: params.output, dir: params.hmmerdir, db: 'vogdb', version: params.version)
-include hmmscan as hmmscan_vpf from './modules/hmmscan' params(output: params.output, dir: params.hmmerdir, db: 'vpf', version: params.version)
-include hmm_postprocessing from './modules/hmm_postprocessing' params(output: params.output, dir: params.hmmerdir)
-include ratio_evalue from './modules/ratio_evalue' params(output: params.output)
-include annotation from './modules/annotation' params(output: params.output)
-include assign from './modules/assign' params(output: params.output, dir: params.taxdir)
+include virsorter from './modules/virsorter' 
+include virfinder from './modules/virfinder' 
+include length_filtering from './modules/length_filtering' 
+include parse from './modules/parse' 
+include prodigal from './modules/prodigal'
+//include phanotate from './modules/phanotate' 
+include hmmscan as hmmscan_viphogs from './modules/hmmscan' params(db: 'viphogs')
+include hmmscan as hmmscan_rvdb from './modules/hmmscan' params(db: 'rvdb')
+include hmmscan as hmmscan_pvogs from './modules/hmmscan' params(db: 'pvogs')
+include hmmscan as hmmscan_vogdb from './modules/hmmscan' params(db: 'vogdb')
+include hmmscan as hmmscan_vpf from './modules/hmmscan' params(db: 'vpf')
+include hmm_postprocessing from './modules/hmm_postprocessing'
+include ratio_evalue from './modules/ratio_evalue' 
+include annotation from './modules/annotation' 
+include assign from './modules/assign' 
 
 //visuals
-include plot_contig_map from './modules/plot_contig_map' params(output: params.output, dir: params.plotdir)
-include generate_krona_table from './modules/generate_krona_table' params(output: params.output, dir: params.plotdir)
-include krona from './modules/krona' params(output: params.output, dir: params.plotdir)
-include generate_sankey_json from './modules/generate_sankey_json' params(output: params.output, dir: params.plotdir, sankey: params.sankey)
+include plot_contig_map from './modules/plot_contig_map' 
+include generate_krona_table from './modules/generate_krona_table' 
+include krona from './modules/krona'
+include generate_sankey_json from './modules/generate_sankey_json'
 
 //include './modules/kaiju' params(output: params.output, illumina: params.illumina, fasta: params.fasta)
 //include './modules/filter_reads' params(output: params.output)
@@ -438,7 +438,7 @@ def helpMSG() {
     --memory            max memory for local use [default: $params.memory]
     --output            name of the result folder [default: $params.output]
 
-    ${c_yellow}Parameters:${c_reset}
+    ${c_yellow}Databases:${c_reset}
     --virsorter         a virsorter database [default: $params.virsorter]
     --viphog            the ViPhOG database, hmmpress'ed [default: $params.viphog]
     --rvdb              the RVDB, hmmpress'ed [default: $params.rvdb]
@@ -449,8 +449,10 @@ def helpMSG() {
     Important! If you provide your own hmmer database follow this format:
     rvdb/rvdb.hmm --> <folder>/<name>.hmm && 'folder' == 'name'
 
-    --sankey            a cutoff for sankey plot, try and error [default: $params.sankey]
-    --chunk             WIP chunk FASTA files into smaller pieces for parallel calculation [default: $params.chunk]
+    ${c_yellow}Parameters:${c_reset}
+    --length            Initial length filter in kb [default: $params.length]
+    --sankey            WIP: a cutoff for sankey plot, try and error [default: $params.sankey]
+    --chunk             WIP: chunk FASTA files into smaller pieces for parallel calculation [default: $params.chunk]
 
     ${c_yellow}Developing:${c_reset}
     --version         define the ViPhOG db version to be used [default: $params.version]

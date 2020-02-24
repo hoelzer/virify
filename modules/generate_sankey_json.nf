@@ -1,5 +1,5 @@
 process generate_sankey_json {
-      publishDir "${params.output}/${name}/${params.dir}", mode: 'copy', pattern: "${tbl}.json"
+      publishDir "${params.output}/${name}/${params.plotdir}", mode: 'copy', pattern: "${tbl}.json"
       label 'ruby'
 
     input:

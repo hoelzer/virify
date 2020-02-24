@@ -1,5 +1,5 @@
 process hmm_postprocessing {
-      publishDir "${params.output}/${name}/${params.dir}/", mode: 'copy', pattern: "${set_name}_modified.tsv"
+      publishDir "${params.output}/${name}/${params.hmmerdir}/", mode: 'copy', pattern: "${set_name}_modified.tsv"
       label 'python3'
 
     input:

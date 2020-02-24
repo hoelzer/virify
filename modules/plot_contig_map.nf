@@ -1,5 +1,5 @@
 process plot_contig_map {
-      publishDir "${params.output}/${name}/${params.dir}/", mode: 'copy', pattern: "${set_name}_mapping_results"
+      publishDir "${params.output}/${name}/${params.plotdir}/", mode: 'copy', pattern: "${set_name}_mapping_results"
       label 'plot_contig_map'
 
     input:

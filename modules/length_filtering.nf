@@ -6,11 +6,12 @@ process length_filtering {
       tuple val(name), file(fasta), file(map) 
     
     output:
-      tuple val(name), file("${name}*filt*.fasta")
+      tuple val(name), file("${name}*filt*.fasta"), env(CONTIGS)
     
     shell:
     """    
-      filter_contigs_len.py -f ${fasta} -l 0.5 -o ./
+      filter_contigs_len.py -f ${fasta} -l ${params.length} -o ./
+      CONTIGS=\$(grep ">" ${name}*filt*.fasta | wc -l)
     """
 }
 

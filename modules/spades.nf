@@ -1,6 +1,6 @@
 process spades {
     label 'spades'  
-    publishDir "${params.output}/${name}/${params.dir}", mode: 'copy', pattern: "${name}.fasta"
+    publishDir "${params.output}/${name}/${params.assemblydir}", mode: 'copy', pattern: "${name}.fasta"
   input:
     tuple val(name), file(reads)
   output:

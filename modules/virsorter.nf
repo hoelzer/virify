@@ -1,11 +1,14 @@
 process virsorter {
-      publishDir "${params.output}/${name}/${params.dir}/", mode: 'copy', pattern: "*"
+      publishDir "${params.output}/${name}/${params.virusdir}/", mode: 'copy', pattern: "*"
       label 'virsorter'
 
     input:
-      tuple val(name), file(fasta) 
+      tuple val(name), file(fasta), val(contig_number) 
       file(database) 
-    
+
+    when: 
+      contig_number.toInteger() > 0 
+
     output:
       tuple val(name), file("*")
     

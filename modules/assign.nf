@@ -1,5 +1,5 @@
 process assign {
-      publishDir "${params.output}/${name}/${params.dir}", mode: 'copy', pattern: "*tax_assign.tsv"
+      publishDir "${params.output}/${name}/${params.taxdir}", mode: 'copy', pattern: "*tax_assign.tsv"
       label 'assign'
 
     input:

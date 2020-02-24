@@ -1,5 +1,5 @@
 process generate_krona_table {
-      publishDir "${params.output}/${name}/${params.dir}", mode: 'copy', pattern: "*.krona.tsv"
+      publishDir "${params.output}/${name}/${params.plotdir}", mode: 'copy', pattern: "*.krona.tsv"
       label 'python3'
 
     input:

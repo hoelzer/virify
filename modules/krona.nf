@@ -1,5 +1,5 @@
 process krona {
-    publishDir "${params.output}/${name}/${params.dir}", mode: 'copy', pattern: "*.krona.html"
+    publishDir "${params.output}/${name}/${params.plotdir}", mode: 'copy', pattern: "*.krona.html"
     label 'krona'  
   input:
     tuple val(name), val(set_name), file(krona_file)

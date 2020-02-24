@@ -1,5 +1,5 @@
 process multiqc {
-    publishDir "${params.output}/${name}/${params.dir}", mode: 'copy', pattern: "multiqc_report.html"
+    publishDir "${params.output}/${name}/${params.assemblydir}", mode: 'copy', pattern: "multiqc_report.html"
     label 'multiqc'  
   input:
     tuple val(name), file(fastqc)

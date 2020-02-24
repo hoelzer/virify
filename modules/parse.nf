@@ -1,18 +1,19 @@
 process parse {
       publishDir "${params.output}/${name}/", mode: 'copy', pattern: "*.fna"
       label 'python3'
-      //label 'ruby'
 
     input:
-      tuple val(name), file(fasta), file(virfinder), file(virsorter)
-    
+      tuple val(name), file(fasta), val(contig_number), file(virfinder), file(virsorter)
+
+    when: 
+      contig_number.toInteger() > 0 
+
     output:
       tuple val(name), file("*.fna")
     
     shell:
     """
     parse_viral_pred.py -a ${fasta} -f ${virfinder} -s ${virsorter}/Predicted_viral_sequences/
-    #parse_viral_pred.rb ${fasta} ${virfinder} ${virsorter}/Predicted_viral_sequences/
     """
 }
 
