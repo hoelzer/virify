@@ -7,7 +7,7 @@ process blast {
       file(db)
     
     output:
-      tuple val(assembly_name), val(confidence_set_name), file("*.blast")
+      tuple val(assembly_name), val(confidence_set_name), file("${confidence_set_name}.blast"), file("${confidence_set_name}.filtered.blast")
     
     shell:
     """

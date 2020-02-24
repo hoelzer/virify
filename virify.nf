@@ -114,6 +114,7 @@ include ratio_evalue from './modules/ratio_evalue'
 include annotation from './modules/annotation' 
 include assign from './modules/assign' 
 include blast from './modules/blast' 
+include blast_filter from './modules/blast_filter' 
 
 //visuals
 include plot_contig_map from './modules/plot_contig_map' 
@@ -321,6 +322,7 @@ workflow annotate {
 
         // blast IMG/VR for more information
         blast(predicted_contigs, imgvr_db)
+        blast_filter(blast.out, imgvr_db)
 
         // hmmer additional databases
         /*
