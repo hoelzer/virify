@@ -84,6 +84,7 @@ include rvdbGetDB from './modules/rvdbGetDB'
 include pvogsGetDB from './modules/pvogsGetDB' 
 include vogdbGetDB from './modules/vogdbGetDB' 
 include vpfGetDB from './modules/vpfGetDB'
+include imgvrGetDB from './modules/imgvrGetDB'
 //include './modules/kaijuGetDB' params(cloudProcess: params.cloudProcess, cloudDatabase: params.cloudDatabase)
 
 //preprocessing
@@ -103,15 +104,16 @@ include length_filtering from './modules/length_filtering'
 include parse from './modules/parse' 
 include prodigal from './modules/prodigal'
 //include phanotate from './modules/phanotate' 
-include hmmscan as hmmscan_viphogs from './modules/hmmscan' params(db: 'viphogs')
-include hmmscan as hmmscan_rvdb from './modules/hmmscan' params(db: 'rvdb')
-include hmmscan as hmmscan_pvogs from './modules/hmmscan' params(db: 'pvogs')
-include hmmscan as hmmscan_vogdb from './modules/hmmscan' params(db: 'vogdb')
-include hmmscan as hmmscan_vpf from './modules/hmmscan' params(db: 'vpf')
+include hmmscan as hmmscan_viphogs from './modules/hmmscan' params(output: params.output, hmmerdir: params.hmmerdir, db: 'viphogs', version: params.version)
+include hmmscan as hmmscan_rvdb from './modules/hmmscan' params(output: params.output, hmmerdir: params.hmmerdir, db: 'rvdb', version: params.version)
+include hmmscan as hmmscan_pvogs from './modules/hmmscan' params(output: params.output, hmmerdir: params.hmmerdir, db: 'pvogs', version: params.version)
+include hmmscan as hmmscan_vogdb from './modules/hmmscan' params(output: params.output, hmmerdir: params.hmmerdir, db: 'vogdb', version: params.version)
+include hmmscan as hmmscan_vpf from './modules/hmmscan' params(output: params.output, hmmerdir: params.hmmerdir, db: 'vpf', version: params.version)
 include hmm_postprocessing from './modules/hmm_postprocessing'
 include ratio_evalue from './modules/ratio_evalue' 
 include annotation from './modules/annotation' 
 include assign from './modules/assign' 
+include blast from './modules/blast' 
 
 //visuals
 include plot_contig_map from './modules/plot_contig_map' 
@@ -223,6 +225,19 @@ workflow download_vpf_db {
   emit: db    
 }
 
+workflow download_imgvr_db {
+    main:
+    // local storage via storeDir
+    if (!params.cloudProcess) { imgvrGetDB(); db = imgvrGetDB.out }
+    // cloud storage via db_preload.exists()
+    if (params.cloudProcess) {
+      db_preload = file("${params.cloudDatabase}/imgvr")
+      if (db_preload.exists()) { db = db_preload }
+      else  { imgvrGetDB(); db = imgvrGetDB.out } 
+    }
+  emit: db    
+}
+
 /*
 workflow download_kaiju_db {
     main:
@@ -281,6 +296,7 @@ workflow annotate {
             pvogs_db
             vogdb_db
             vpf_db
+            imgvr_db
 
     main:
         // ORF detection --> prodigal
@@ -303,12 +319,16 @@ workflow annotate {
         // assign lineages
         assign(annotation.out, ncbi_db)
 
+        // blast IMG/VR for more information
+        //blast(predicted_contigs, imgvr_db)
+
         // hmmer additional databases
+        /*
         hmmscan_rvdb(prodigal.out, rvdb_db)
         hmmscan_pvogs(prodigal.out, pvogs_db)
         hmmscan_vogdb(prodigal.out, vogdb_db)
         hmmscan_vpf(prodigal.out, vpf_db)
-
+        */
     emit:
       assign.out
 }
@@ -371,9 +391,6 @@ workflow {
     if (params.viphog) { viphog_db = file(params.viphog)} 
     else {download_viphog_db(); viphog_db = download_viphog_db.out }
 
-    if (params.ncbi) { ncbi_db = file(params.ncbi)} 
-    else {download_ncbi_db(); ncbi_db = download_ncbi_db.out }
-
     if (params.rvdb) { rvdb_db = file(params.rvdb)} 
     else {download_rvdb_db(); rvdb_db = download_rvdb_db.out }
 
@@ -386,6 +403,12 @@ workflow {
     if (params.vpf) { vpf_db = file(params.vpf)} 
     else {download_vpf_db(); vpf_db = download_vpf_db.out }
 
+    if (params.ncbi) { ncbi_db = file(params.ncbi)} 
+    else {download_ncbi_db(); ncbi_db = download_ncbi_db.out }
+
+    if (params.imgvr) { imgvr_db = file(params.imgvr)} 
+    else {download_imgvr_db(); imgvr_db = download_imgvr_db.out }
+
     //download_kaiju_db()
     //kaiju_db = download_kaiju_db.out
     /**************************************************************/
@@ -394,7 +417,7 @@ workflow {
     if (params.fasta) {
       plot(
         annotate(
-          detect(fasta_input_ch, virsorter_db), viphog_db, ncbi_db, rvdb_db, pvogs_db, vogdb_db, vpf_db)
+          detect(fasta_input_ch, virsorter_db), viphog_db, ncbi_db, rvdb_db, pvogs_db, vogdb_db, vpf_db, imgvr_db)
       )
     } 
 
@@ -403,7 +426,7 @@ workflow {
       assembly_illumina(illumina_input_ch)           
       plot(
         annotate(
-          detect(assembly_illumina.out, virsorter_db), viphog_db, ncbi_db, rvdb_db, pvogs_db, vogdb_db, vpf_db)
+          detect(assembly_illumina.out, virsorter_db), viphog_db, ncbi_db, rvdb_db, pvogs_db, vogdb_db, vpf_db, imgvr_db)
       )
     }
 }
@@ -445,7 +468,8 @@ def helpMSG() {
     --pvogs             the pVOGS, hmmpress'ed [default: $params.pvogs]
     --vogdb             the VOGDB, hmmpress'ed [default: $params.vogdb]
     --vpf               the VPF from IMG/VR, hmmpress'ed [default: $params.vpf]
-    --ncbi              a NCBI taxonomy database [default: $params.ncbi]
+    --ncbi              a NCBI taxonomy database, from ete3 import NCBITaxa [default: $params.ncbi]
+    --imgvr             the IMG/VR, viral (meta)genome sequences [default: $params.imgvr]
     Important! If you provide your own hmmer database follow this format:
     rvdb/rvdb.hmm --> <folder>/<name>.hmm && 'folder' == 'name'
 
