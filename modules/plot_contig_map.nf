@@ -10,9 +10,24 @@ process plot_contig_map {
     
     shell:
     """
-    plot_contigs_pdf.R -o ${set_name}_mapping_results -t ${tab}
+	# get only contig IDs that have at least one annotation hit 
+	IDS=\$(awk 'BEGIN{FS="\\t"};{if(\$6!="No hit"){print \$1}}' ${tab} | sort | uniq | grep -v Contig)
+	head -1 ${tab} > plot.tsv
+	for ID in \$IDS; do
+		awk -v id="\$ID" '{if(id==\$1){print \$0}}' ${tab} >> plot.tsv
+	done
+    plot_contigs_pdf.R -o ${set_name}_mapping_results -t plot.tsv
     """
 }
+
+/* OUTPUT LOOKS LIKE
+Contig	CDS_ID	Start	End	Direction	Best_hit	Abs_Evalue_exp	Label
+pos.phage.0	pos.phage.0_1	265	537	1	No hit	NA
+pos.phage.0	pos.phage.0_63	24589	25578	-1	ViPhOG17126.faa	11	Batrachovirus
+pos.phage.0	pos.phage.0_64	25578	25991	-1	No hit	NA
+pos.phage.0	pos.phage.0_81	33714	34214	-1	ViPhOG602.faa	30	Myoviridae
+pos.phage.0	pos.phage.0_82	34227	34370	-1	No hit	NA
+*/
 
 /*
 #!/usr/bin/env Rscript
