@@ -22,9 +22,9 @@ process blast {
 
       # add meta data for the filtered hits
       META=${db}/IMG_VR_2018-07-01_4/IMGVR_all_Sequence_information.tsv
-      for HIT_LINE in \$(grep -v qseqid *.filtered.blast); do
+      for HIT_LINE in \$(grep -v qseqid ${confidence_set_name}.filtered.blast); do
         HIT_ID=\$(awk '{print \$2}' \$HIT_LINE | sed 's/REF://g')
-        HIT_LINE_CLEAN=$(echo \$HIT_LINE | tr -d '\\n')
+        HIT_LINE_CLEAN=\$(echo \$HIT_LINE | tr -d '\\n')
         printf \$HIT_LINE >> ${confidence_set_name}.filtered.meta.blast
         awk -v hit=\$HIT_ID '{if(\$1==hit){print \$0}}' \$META >> ${confidence_set_name}.filtered.meta.blast
       done
