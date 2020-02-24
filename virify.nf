@@ -474,6 +474,7 @@ def helpMSG() {
     rvdb/rvdb.hmm --> <folder>/<name>.hmm && 'folder' == 'name'
 
     ${c_yellow}Parameters:${c_reset}
+    --virome            VirSorter parameter, set when running a data set mostly composed of viruses [default: $params.virome]
     --length            Initial length filter in kb [default: $params.length]
     --sankey            WIP: a cutoff for sankey plot, try and error [default: $params.sankey]
     --chunk             WIP: chunk FASTA files into smaller pieces for parallel calculation [default: $params.chunk]
