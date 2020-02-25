@@ -19,7 +19,7 @@ opt <- parse_args(opt_parser);
 
 if (is.null(opt$table)) {
 	print_help(opt_parser)
-	stop("Provide table containing ViPhOG hmmer results for viral contig file")/Users/kates/Desktop/CWL_viral_pipeline/CWL/prodigal
+	stop("Provide table containing ViPhOG hmmer results for viral contig file")
 }
 
 #prepare input file
@@ -48,9 +48,11 @@ names(myColors) <- levels(annotation_table$Colour)
 dir.create(opt$outdir, showWarnings = FALSE)
 
 #Generate maps for each viral contig identified
+#replace unwanted characters: >gi|1001940386|gb|KU522583.1|__Enterobacteria__phage__ECGD1,__complete__genome
 for (item in unique(annotation_table$Contig)) {
 	sample_data <- subset(annotation_table, Contig == item)
-	pdf(file.path(normalizePath(opt$outdir), paste(item, ".pdf", sep = "")), width = 25, height = 10)
+	clean_name <- gsub(",","_", gsub("\\|","_",item))
+	pdf(file.path(normalizePath(opt$outdir), paste(clean_name, ".pdf", sep = "")), width = 25, height = 10)
 	print(ggplot(sample_data, aes(xmin = Start, xmax = End, y = Contig, fill = Colour, forward = Direction))
 	+ geom_gene_arrow(arrowhead_height = unit(3, "mm"), arrowhead_width = unit(1, "mm"))
 	+ geom_text(aes(x = Position, label = Label), angle = 90, colour = "black", size = 3, hjust = -0.2)

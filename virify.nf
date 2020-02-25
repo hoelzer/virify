@@ -462,13 +462,13 @@ def helpMSG() {
     --output            name of the result folder [default: $params.output]
 
     ${c_yellow}Databases:${c_reset}
-    --virsorter         a virsorter database [default: $params.virsorter]
+    --virsorter         a virsorter database provided as 'virsorter/virsorter-data' [default: $params.virsorter]
     --viphog            the ViPhOG database, hmmpress'ed [default: $params.viphog]
     --rvdb              the RVDB, hmmpress'ed [default: $params.rvdb]
     --pvogs             the pVOGS, hmmpress'ed [default: $params.pvogs]
     --vogdb             the VOGDB, hmmpress'ed [default: $params.vogdb]
     --vpf               the VPF from IMG/VR, hmmpress'ed [default: $params.vpf]
-    --ncbi              a NCBI taxonomy database, from ete3 import NCBITaxa [default: $params.ncbi]
+    --ncbi              a NCBI taxonomy database, from ete3 import NCBITaxa, named ete3_ncbi_tax.sqlite [default: $params.ncbi]
     --imgvr             the IMG/VR, viral (meta)genome sequences [default: $params.imgvr]
     Important! If you provide your own hmmer database follow this format:
         rvdb/rvdb.hmm --> <folder>/<name>.hmm && 'folder' == 'name'
