@@ -1,6 +1,6 @@
 process plot_contig_map {
       publishDir "${params.output}/${name}/${params.plotdir}/", mode: 'copy', pattern: "${set_name}_mapping_results"
-      publishDir "${params.output}/${name}/${params.plotdir}/", mode: 'copy', pattern: "*.tsv"
+      publishDir "${params.output}/${name}/${params.plotdir}/${set_name}_mapping_results/", mode: 'copy', pattern: "*.tsv"
       label 'plot_contig_map'
 
     input:
