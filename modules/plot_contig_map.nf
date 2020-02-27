@@ -1,12 +1,13 @@
 process plot_contig_map {
       publishDir "${params.output}/${name}/${params.plotdir}/", mode: 'copy', pattern: "${set_name}_mapping_results"
+      publishDir "${params.output}/${name}/${params.plotdir}/", mode: 'copy', pattern: "*.tsv"
       label 'plot_contig_map'
 
     input:
       tuple val(name), val(set_name), file(tab)
     
     output:
-      tuple val(name), file("${set_name}_mapping_results")
+      tuple val(name), file("${set_name}_mapping_results"), file("*.tsv")
     
     shell:
     """
