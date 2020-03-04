@@ -385,6 +385,7 @@ workflow {
 
     /**************************************************************/
     // download all databases
+    
     if (params.virsorter) { virsorter_db = file(params.virsorter)} 
     else { download_virsorter_db(); virsorter_db = download_virsorter_db.out }
 
@@ -408,7 +409,7 @@ workflow {
 
     if (params.imgvr) { imgvr_db = file(params.imgvr)} 
     else {download_imgvr_db(); imgvr_db = download_imgvr_db.out }
-
+    
     //download_kaiju_db()
     //kaiju_db = download_kaiju_db.out
     /**************************************************************/
