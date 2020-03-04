@@ -6,9 +6,12 @@ library(VirFinder)
 library(methods)
 library(purrr)
 
+args = commandArgs(trailingOnly=TRUE)
+
 #modFile <- system.file("data", "VF.modEPV_k8.rda", package = "VirFinder")
 #load(modFile)
-load(args[1])
+modFile <- args[1] 
+load(modFile)
 
 # prepare arguments
 #option_list <- list(
