@@ -25,7 +25,7 @@ RUN apt-get clean all && apt remove -y git && \
 
 RUN mkdir /scratch
 
-# so that the special model can be loaded
-RUN cp /VirFinder/EPV/VF.modEPV_k8.rda /usr/local/lib/R/site-library/VirFinder/data/
+# so that the special model can be loaded, pass when executed
+#RUN cp /VirFinder/EPV/VF.modEPV_k8.rda /usr/local/lib/R/site-library/VirFinder/data/
 
-#ADD /run_virfinder.Rscript /usr/local/bin/
+ADD /run_virfinder.Rscript /usr/local/bin/
