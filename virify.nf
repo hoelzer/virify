@@ -232,7 +232,7 @@ workflow download_imgvr_db {
     if (!params.cloudProcess) { imgvrGetDB(); db = imgvrGetDB.out }
     // cloud storage via db_preload.exists()
     if (params.cloudProcess) {
-      db_preload = file("${params.cloudDatabase}/imgvr")
+      db_preload = file("${params.cloudDatabase}/imgvr/IMG_VR_2018-07-01_4")
       if (db_preload.exists()) { db = db_preload }
       else  { imgvrGetDB(); db = imgvrGetDB.out } 
     }
