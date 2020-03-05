@@ -4,4 +4,5 @@ channels:
   - conda-forge
 dependencies:
   - r-virfinder=1.1
+  - r-purrr=0.3.3
   - bioconductor-biostrings=2.54.0

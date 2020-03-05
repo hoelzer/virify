@@ -12,7 +12,6 @@ install2.r --error BiocManager \
 RUN apt-get update && apt-get install -y git && git clone https://github.com/jessieren/VirFinder.git
 RUN R CMD INSTALL /VirFinder/linux/VirFinder_1.1.tar.gz
 
-
 RUN mkdir virfinder_exec/ && \
             printf '#!/usr/bin/env Rscript\nlibrary(VirFinder) \n args <- commandArgs(trailingOnly = TRUE) \n filein <- args[1] \n \
             \n predResult <- VF.pred(filein) \n predResult[order(predResult$pvalue),]' > /virfinder_exec/virfinderGO.R && \
@@ -25,5 +24,8 @@ RUN apt-get clean all && apt remove -y git && \
 		rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 RUN mkdir /scratch
+
+# so that the special model can be loaded, pass when executed
+#RUN cp /VirFinder/EPV/VF.modEPV_k8.rda /usr/local/lib/R/site-library/VirFinder/data/
 
 ADD /run_virfinder.Rscript /usr/local/bin/
