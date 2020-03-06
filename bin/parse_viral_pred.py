@@ -84,12 +84,12 @@ def parse_virus_sorter(folder_name):
                 elif category == "6":
                     pass
                 else:
-                    print(f"Contig  has an invalid category : {category}")
+                    print(f"Contig has an invalid category : {category}")
                 line = fasta.readline()
 
     print(f"Virus Sorter found {len(high_confidence)} high confidence contigs.")
     print(f"Virus Sorter found {len(low_confidence)} low confidence contigs.")
-    print(f"Virus Sorter found {len(prophages)} purative prophages contigs.")
+    print(f"Virus Sorter found {len(prophages)} putative prophages contigs.")
 
     return high_confidence, low_confidence, prophages
 
@@ -123,12 +123,12 @@ def virus_parser(assembly_file, vf_output, vs_output):
         if record.id in sorter_hc:
             hc_predictions_contigs.append(record)
         # LC
-        if record.id in finder_lc:
+        elif record.id in finder_lc:
             lc_predictions_contigs.append(record)
-        if record.id in sorter_lc and record.id in finder_lowestc:
+        elif record.id in sorter_lc and record.id in finder_lowestc:
             lc_predictions_contigs.append(record)
         # Pro
-        if record.id in sorter_prophages:
+        elif record.id in sorter_prophages:
             prophage_predictions_contigs.append(record)
 
     return hc_predictions_contigs, lc_predictions_contigs, prophage_predictions_contigs
