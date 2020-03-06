@@ -1,22 +1,23 @@
 process plot_contig_map {
       publishDir "${params.output}/${name}/${params.plotdir}/", mode: 'copy', pattern: "${set_name}_mapping_results"
-      publishDir "${params.output}/${name}/${params.plotdir}/${set_name}_mapping_results/", mode: 'copy', pattern: "*.tsv"
       label 'plot_contig_map'
 
     input:
       tuple val(name), val(set_name), file(tab)
     
     output:
-      tuple val(name), file("${set_name}_mapping_results"), file("*.tsv")
+      tuple val(name), file("${set_name}_mapping_results")
     
     shell:
     """
-	# get only contig IDs that have at least one annotation hit 
-	IDS=\$(awk 'BEGIN{FS="\\t"};{if(\$6!="No hit"){print \$1}}' ${tab} | sort | uniq | grep -v Contig)
-	head -1 ${tab} > plot.tsv
-	for ID in \$IDS; do
-		awk -v id="\$ID" '{if(id==\$1){print \$0}}' ${tab} >> plot.tsv
-	done
+  	# get only contig IDs that have at least one annotation hit 
+	  IDS=\$(awk 'BEGIN{FS="\\t"};{if(\$6!="No hit"){print \$1}}' ${tab} | sort | uniq | grep -v Contig)
+	  head -1 ${tab} > plot.tsv
+	  for ID in \$IDS; do
+		  awk -v id="\$ID" '{if(id==\$1){print \$0}}' ${tab} >> plot.tsv
+	  done
+    mkdir -p ${set_name}_mapping_results
+    mv plot.tsv ${set_name}_mapping_results/
     make_viral_contig_map.R -o ${set_name}_mapping_results -t plot.tsv
     """
 }
