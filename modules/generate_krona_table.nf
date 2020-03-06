@@ -13,9 +13,9 @@ process generate_krona_table {
     if [[ "${set_name}" == "all" ]]; then
       grep contig_ID *.tsv | awk 'BEGIN{FS=":"};{print \$2}' | uniq > ${name}.tsv
       grep -v "contig_ID" *.tsv | awk 'BEGIN{FS=":"};{print \$2}' | uniq >> ${name}.tsv
-      generate_krona_table.py -f ${name}.tsv -o ${name}.krona.tsv
+      generate_counts_table.py -f ${name}.tsv -o ${name}.krona.tsv
     else
-      generate_krona_table.py -f ${tbl} -o ${set_name}.krona.tsv
+      generate_counts_table.py -f ${tbl} -o ${set_name}.krona.tsv
     fi
     """
 }
