@@ -3,7 +3,7 @@ process parse {
       label 'python3'
 
     input:
-      tuple val(name), file(fasta), val(contig_number), file(virfinder), file(virsorter)
+      tuple val(name), file(fasta), val(contig_number), file(virfinder), file(virsorter), file(pprmeta)
 
     when: 
       contig_number.toInteger() > 0 

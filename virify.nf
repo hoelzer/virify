@@ -100,6 +100,7 @@ include spades from './modules/spades'
 //detection
 include virsorter from './modules/virsorter' 
 include virfinder from './modules/virfinder' 
+include pprmeta from './modules/pprmeta'
 include length_filtering from './modules/length_filtering' 
 include parse from './modules/parse' 
 include prodigal from './modules/prodigal'
@@ -271,12 +272,13 @@ workflow detect {
         // filter contigs by length
         length_filtering(rename.out)
 
-        // virus detection --> VirSorter and VirFinder
+        // virus detection --> VirSorter, VirFinder and PPR-Meta
         virsorter(length_filtering.out, virsorter_db)     
         virfinder(length_filtering.out)
+        pprmeta(length_filtering.out)
 
         // parsing predictions
-        parse(length_filtering.out.join(virfinder.out).join(virsorter.out))
+        parse(length_filtering.out.join(virfinder.out).join(virsorter.out).join(pprmeta.out))
 
         // restore contig names
         restore(parse.out.join(rename.out).transpose())
@@ -410,6 +412,7 @@ workflow {
 
     if (params.imgvr) { imgvr_db = file(params.imgvr)} 
     else {download_imgvr_db(); imgvr_db = download_imgvr_db.out }
+
     
     //download_kaiju_db()
     //kaiju_db = download_kaiju_db.out
