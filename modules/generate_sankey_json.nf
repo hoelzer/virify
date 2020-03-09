@@ -1,4 +1,4 @@
-process generate_sankey_json {
+process generate_sankey_tsv {
       publishDir "${params.output}/${name}/${params.plotdir}", mode: 'copy', pattern: "${tbl}.json"
       label 'ruby'
 

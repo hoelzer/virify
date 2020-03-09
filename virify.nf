@@ -120,8 +120,9 @@ include blast_filter from './modules/blast_filter'
 //visuals
 include plot_contig_map from './modules/plot_contig_map' 
 include generate_krona_table from './modules/generate_krona_table' 
+include generate_sankey_table from './modules/sankey'
 include krona from './modules/krona'
-include generate_sankey_json from './modules/generate_sankey_json'
+include sankey from './modules/sankey'
 
 //include './modules/kaiju' params(output: params.output, illumina: params.illumina, fasta: params.fasta)
 //include './modules/filter_reads' params(output: params.output)
@@ -353,7 +354,9 @@ workflow plot {
         )
 
         // sankey
-        //generate_sankey_json(generate_krona_table.out)
+        sankey(
+          generate_sankey_table(generate_krona_table.out)
+        )
 }
 
 
