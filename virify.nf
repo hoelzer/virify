@@ -324,8 +324,8 @@ workflow annotate {
         assign(annotation.out, ncbi_db)
 
         // blast IMG/VR for more information
-        blast(predicted_contigs, imgvr_db)
-        blast_filter(blast.out, imgvr_db)
+        //blast(predicted_contigs, imgvr_db)
+        //blast_filter(blast.out, imgvr_db)
 
         // hmmer additional databases
         if (params.hmmextend) {
