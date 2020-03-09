@@ -17,7 +17,7 @@ process plot_contig_map {
 		  awk -v id="\$ID" '{if(id==\$1){print \$0}}' ${tab} >> plot.tsv
 	  done
     mkdir -p ${set_name}_mapping_results
-    mv plot.tsv ${set_name}_mapping_results/
+    cp plot.tsv ${set_name}_mapping_results/
     make_viral_contig_map.R -o ${set_name}_mapping_results -t plot.tsv
     """
 }
