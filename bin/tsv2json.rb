@@ -7,7 +7,7 @@
 #8	root	Viruses	unclassified    Baculoviridae	Betabaculovirus	unclassified Betabaculovirus    Spodoptera litura granulovirus
 
 TSV = File.open(ARGV[0], 'r')
-JSON = File.open(ARGV[0]+".json", 'w')
+JSON = File.open(ARGV[1], 'w')
 
 cutoff = ARGV[1].to_i
 
