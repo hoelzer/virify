@@ -11,6 +11,20 @@ from Bio import SeqIO
 import pandas as pd
 
 
+def parse_pprmeta(file_name):
+    """Extract phage hits from PPR-Meta.
+    """
+    result_df = pd.read_csv(file_name, sep=",")
+
+    lc_ids = set(result_df[
+        (result_df["Possible_source"] == "phage")
+    ]["Header"].values)
+
+    print(f"PPR-Meta found {len(lc_ids)} low confidence contigs.")
+
+    return lc_ids
+
+
 def parse_virus_finder(file_name):
     """Extract high and low confidence contigs from virus finder results.
     """
@@ -28,7 +42,7 @@ def parse_virus_finder(file_name):
         (result_df["score"] < 0.9)
     ]["name"].values)
 
-    print(f"Virus Finder found {len(hc_ids)} low confidence contigs.")
+    print(f"Virus Finder found {len(lc_ids)} low confidence contigs.")
 
     return hc_ids, lc_ids
 
@@ -94,8 +108,8 @@ def parse_virus_sorter(folder_name):
     return high_confidence, low_confidence, prophages
 
 
-def virus_parser(assembly_file, vf_output, vs_output):
-    """Parse VirSorter and VirFinder outputs and merge the results.
+def virus_parser(assembly_file, vf_output, vs_output, pm_output):
+    """Parse VirSorter, VirFinder and PPR-Meta outputs and merge the results.
     Expected outputs:
     - set of contig with high confidence viruses
     - set of contig with low confidence viruses
@@ -104,7 +118,8 @@ def virus_parser(assembly_file, vf_output, vs_output):
     High confidence viral contigs are those that are in virsorter categories
      1 and 2; low confidence viral contigs are those for which VirFinder
      reported p < 0.05 and score >= 0.9, or those for which VirFinder reported
-     p < 0.05 and 0.7<=score<0.9, and that VirSorter reported as category 3.
+     p < 0.05 and 0.7<=score<0.9, and that VirSorter reported as category 3 or 
+     PPR-Meta reported as phage.
      Putative prophages are prophages reported by Virsorter in categories 4
       and 5 (which correspond to VirSorter confidence categories 1 and 2).
     """
@@ -115,6 +130,7 @@ def virus_parser(assembly_file, vf_output, vs_output):
     # TODO: table with virfinder, virsorter assign
     # merge_table = {}
 
+    pprmeta_lc = parse_pprmeta(pm_output)
     finder_lc, finder_lowestc = parse_virus_finder(vf_output)
     sorter_hc, sorter_lc, sorter_prophages = parse_virus_sorter(vs_output)
 
@@ -126,6 +142,8 @@ def virus_parser(assembly_file, vf_output, vs_output):
         elif record.id in finder_lc:
             lc_predictions_contigs.append(record)
         elif record.id in sorter_lc and record.id in finder_lowestc:
+            lc_predictions_contigs.append(record)
+        elif record.id in pprmeta_lc and record.id in finder_lowestc:
             lc_predictions_contigs.append(record)
         # Pro
         elif record.id in sorter_prophages:
@@ -151,6 +169,9 @@ if __name__ == "__main__":
     parser.add_argument("-s", "--vsdir", dest="sorter",
                         help="Absolute or relative path to directory containing"
                         " VirSorter output", required=True)
+    parser.add_argument("-p", "--pmout", dest="pprmeta",
+                        help="Absolute or relative path to PPR-Meta output file"
+                        " PPR-Meta output", required=True)
     parser.add_argument("-o", "--outdir", dest="outdir",
                         help="Absolute or relative path of directory where output"
                         " _viral prediction files should be stored (default: cwd)",
@@ -158,7 +179,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     hc_contigs, lc_contigs, prophage_contigs = virus_parser(
-        args.assemb, args.finder, args.sorter)
+        args.assemb, args.finder, args.sorter, args.pprmeta)
 
     at_least_one = False
     if len(hc_contigs):

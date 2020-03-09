@@ -1,5 +1,6 @@
 process pprmeta {
       label 'pprmeta'
+      publishDir "${params.output}/${name}/${params.virusdir}/pprmeta", mode: 'copy', pattern: "${name}_pprmeta.csv"
 
     input:
       tuple val(name), file(fasta), val(contig_number)
@@ -8,7 +9,7 @@ process pprmeta {
       contig_number.toInteger() > 0 
 
     output:
-      tuple val(name), file("${name}_*.csv")
+      tuple val(name), file("${name}_pprmeta.csv")
 
     script:
       """
