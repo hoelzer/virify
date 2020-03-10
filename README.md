@@ -6,7 +6,7 @@ Email: hoelzer.martin@gmail.com
 
 # VIRify
 
-![Sankey plot](sankey.png)
+![Sankey plot](figures/sankey.png)
 
 
 A nextflow implementation of the [EBI VIRify pipeline](https://github.com/EBI-Metagenomics/emg-viral-pipeline) for the detection of viruses from metagenomic assemblies.
