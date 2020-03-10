@@ -1,4 +1,5 @@
 process parse {
+      errorStrategy { task.exitStatus = 1 ? 'ignore' :  'terminate' }
       publishDir "${params.output}/${name}/", mode: 'copy', pattern: "*.fna"
       label 'python3'
 

@@ -54,21 +54,21 @@ if (params.illumina == '' &&  params.fasta == '' ) {
                 .fromPath( params.illumina, checkIfExists: true )
                 .splitCsv()
                 .map { row -> ["${row[0]}", [file("${row[1]}"), file("${row[2]}")]] }
-                .view() }
+                }
         else if (params.illumina) { illumina_input_ch = Channel
                 .fromFilePairs( params.illumina , checkIfExists: true )
-                .view() }
+                }
     
     // direct fasta input w/o assembly support & --list support
         if (params.fasta && params.list) { fasta_input_ch = Channel
                 .fromPath( params.fasta, checkIfExists: true )
                 .splitCsv()
                 .map { row -> ["${row[0]}", file("${row[1]}")] }
-                .view() }
+                }
         else if (params.fasta) { fasta_input_ch = Channel
                 .fromPath( params.fasta, checkIfExists: true)
                 .map { file -> tuple(file.simpleName, file) }
-                .view() }
+                }
 
 /************************** 
 * MODULES
