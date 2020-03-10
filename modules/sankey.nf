@@ -1,12 +1,12 @@
 process generate_sankey_table {
-      publishDir "${params.output}/${name}/${params.plotdir}", mode: 'copy', pattern: "${set_name}.sankey.json"
+      publishDir "${params.output}/${name}/${params.plotdir}", mode: 'copy', pattern: "${set_name}.sankey.*"
       label 'ruby'
 
     input:
       tuple val(name), val(set_name), file(krona_table)
     
     output:
-      tuple val(name), val(set_name), file("${set_name}.sankey.json")
+      tuple val(name), val(set_name), file("${set_name}.sankey.json"), file("${set_name}.sankey.tsv")
     
     shell:
     """
@@ -20,7 +20,7 @@ process sankey {
     label 'sankey'
 
     input:
-      tuple val(name), val(set_name), file(json)
+      tuple val(name), val(set_name), file(json), file(tsv)
     
     output:
       tuple val(name), val(set_name), file("*.sankey.html")
