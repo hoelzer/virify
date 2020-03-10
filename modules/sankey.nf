@@ -6,12 +6,16 @@ process generate_sankey_table {
       tuple val(name), val(set_name), file(krona_table)
     
     output:
-      tuple val(name), val(set_name), file("${set_name}.sankey.json"), file("${set_name}.sankey.tsv")
+      tuple val(name), val(set_name), file("${set_name}.sankey.filtered-${params.sankey}.json"), file("${set_name}.sankey.tsv")
     
     shell:
     """
     krona_table_2_sankey_table.rb ${krona_table} ${set_name}.sankey.tsv
-    tsv2json.rb ${set_name}.sankey.tsv ${set_name}.sankey.json
+    
+    # select the top ${params.sankey} hits with highest count because otherwise sankey gets messy
+    sort -k1,1nr ${set_name}.sankey.tsv | head -${params.sankey} > ${set_name}.sankey.filtered.tsv
+
+    tsv2json.rb ${set_name}.sankey.tsv ${set_name}.sankey.filtered-${params.sankey}.json
     """
 }
 
