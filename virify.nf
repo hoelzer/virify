@@ -360,15 +360,19 @@ workflow plot {
         )
 
         // sankey
-        sankey(
-          generate_sankey_table(generate_krona_table.out)
-        )
+        if (workflow.profile != 'conda') {
+          sankey(
+            generate_sankey_table(generate_krona_table.out)
+         )
+        }
 
         // chromomap
-        combined_annotated_proteins_ch = annotated_proteins_ch.groupTuple().map { tuple(it[0], 'all', it[2]) }.concat(annotated_proteins_ch)
-        chromomap(
-          generate_chromomap_table(combined_annotated_proteins_ch)
-        )
+        if (workflow.profile != 'conda') {
+          combined_annotated_proteins_ch = annotated_proteins_ch.groupTuple().map { tuple(it[0], 'all', it[2]) }.concat(annotated_proteins_ch)
+          chromomap(
+            generate_chromomap_table(combined_annotated_proteins_ch)
+          )
+        }
 }
 
 
