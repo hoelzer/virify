@@ -324,8 +324,10 @@ workflow annotate {
         assign(annotation.out, ncbi_db)
 
         // blast IMG/VR for more information
-        //blast(predicted_contigs, imgvr_db)
-        //blast_filter(blast.out, imgvr_db)
+        if (params.blastextend) {
+          blast(predicted_contigs, imgvr_db)
+          blast_filter(blast.out, imgvr_db)
+        }
 
         // hmmer additional databases
         if (params.hmmextend) {
@@ -486,6 +488,7 @@ def helpMSG() {
     ${c_yellow}Parameters:${c_reset}
     --virome            VirSorter parameter, set when running a data set mostly composed of viruses [default: $params.virome]
     --hmmextend         Use additional databases for more hmmscan results [default: $params.hmmextend]
+    --blastextend       Use additional BLAST database (IMG/VR) for more annotation [default: $params.blastextend]
     --length            Initial length filter in kb [default: $params.length]
     --sankey            select the x taxa with highest count for sankey plot, try and error to change plot [default: $params.sankey]
     --chunk             WIP: chunk FASTA files into smaller pieces for parallel calculation [default: $params.chunk]
