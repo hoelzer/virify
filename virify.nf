@@ -119,10 +119,12 @@ include blast_filter from './modules/blast_filter'
 
 //visuals
 include plot_contig_map from './modules/plot_contig_map' 
-include generate_krona_table from './modules/generate_krona_table' 
+include generate_krona_table from './modules/krona' 
 include generate_sankey_table from './modules/sankey'
+include generate_chromomap_table from './modules/chromomap'
 include krona from './modules/krona'
 include sankey from './modules/sankey'
+include chromomap from './modules/chromomap'
 
 //include './modules/kaiju' params(output: params.output, illumina: params.illumina, fasta: params.fasta)
 //include './modules/filter_reads' params(output: params.output)
@@ -339,6 +341,7 @@ workflow annotate {
         
     emit:
       assign.out
+      plot_contig_map.out // used for ChromoMap in plot workflow
 }
 
 
@@ -346,13 +349,14 @@ workflow annotate {
 */
 workflow plot {
     take:
-      assigned_lineages
+      assigned_lineages_ch
+      annotated_proteins_ch
 
     main:
         // krona
-        combined_assigned_lineages = assigned_lineages.groupTuple().map { tuple(it[0], 'all', it[2]) }.concat(assigned_lineages)
+        combined_assigned_lineages_ch = assigned_lineages_ch.groupTuple().map { tuple(it[0], 'all', it[2]) }.concat(assigned_lineages_ch)
         krona(
-          generate_krona_table(combined_assigned_lineages)
+          generate_krona_table(combined_assigned_lineages_ch)
         )
 
         // sankey
@@ -361,6 +365,10 @@ workflow plot {
         )
 
         // chromomap
+        combined_annotated_proteins_ch = annotated_proteins_ch.groupTuple().map { tuple(it[0], 'all', it[2]) }.concat(annotated_proteins_ch)
+        chromomap(
+          generate_chromomap_table(combined_annotated_proteins_ch)
+        )
 }
 
 
