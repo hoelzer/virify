@@ -339,9 +339,13 @@ workflow annotate {
           hmmscan_vpf(prodigal.out, vpf_db)
         }
         
+    predicted_contigs_filtered = predicted_contigs.map { id, set_name, fasta -> [set_name, id, fasta] }
+    plot_contig_map_filtered = plot_contig_map.out.map { id, set_name, dir, table -> [set_name, table] }
+    chromomap_ch = predicted_contigs_filtered.join(plot_contig_map_filtered)
+
     emit:
       assign.out
-      plot_contig_map.out // used for ChromoMap in plot workflow
+      chromomap_ch
 }
 
 
@@ -368,10 +372,10 @@ workflow plot {
 
         // chromomap
         if (workflow.profile != 'conda') {
-          combined_annotated_proteins_ch = annotated_proteins_ch.groupTuple().map { tuple(it[0], 'all', it[2]) }.concat(annotated_proteins_ch)
-          chromomap(
+          combined_annotated_proteins_ch = annotated_proteins_ch.groupTuple().map { tuple(it[0], 'all', it[2], it[3]) }.concat(annotated_proteins_ch)
+          //chromomap(
             generate_chromomap_table(combined_annotated_proteins_ch)
-          )
+          //)
         }
 }
 

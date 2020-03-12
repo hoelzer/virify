@@ -7,7 +7,7 @@ process plot_contig_map {
       tuple val(name), val(set_name), file(tab)
     
     output:
-      tuple val(name), file("${set_name}_mapping_results"), file("${set_name}_prot_ann_table_filtered.tsv")
+      tuple val(name), val(set_name), file("${set_name}_mapping_results"), file("${set_name}_prot_ann_table_filtered.tsv")
     
     shell:
     """

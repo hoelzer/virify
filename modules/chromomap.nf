@@ -3,7 +3,7 @@ process generate_chromomap_table {
       label 'ruby'
 
     input:
-      tuple val(name), val(set_name), file(annotation_table)
+      tuple val(set_name), val(name), file(assembly), file(annotation_table)
     
     output:
       tuple val(name), val(set_name), file("${set_name}.filtered-*.contigs.txt"), file("${set_name}.filtered-*.anno.txt")
@@ -13,28 +13,29 @@ process generate_chromomap_table {
     if (set_name == "all") { id = name }
     """
     # combine
-    if [[ ${id} == "all" ]]; then
+    if [[ ${set_name} == "all" ]]; then
       cat *.tsv | grep -v Abs_Evalue_exp | sort | uniq > ${id}.tsv
+      cat *.fasta > ${id}.fasta
     else
-      cp ${annotation_table} > ${id}.tsv
+      cp ${annotation_table} ${id}.tsv
+      cp ${assembly} ${id}.fasta
     fi
-
-    # get contigs and sort
-    awk '{print \$1}' ${id}.tsv | awk '{printf \$0"\\t"1"\\t"};BEGIN{FS="_"};{print \$4}' | uniq | awk 'BEGIN{FS="_"}{print \$1"_"\$2"\\t"\$6}' | awk '{print \$1"\\t"\$3"\\t"\$4}' | sort -k3n > ${id}.contigs.txt
-
-    # get annotations
-    awk '{print \$2"\\t"\$1"\\t"\$3"\\t"\$4"\\t"\$6"\\t"\$7}' ${id}.tsv | awk 'BEGIN{FS="_"}{print \$1"_"\$2"_"\$7"_"\$8"\\t"\$12}' | awk '{print \$1"\\t"\$2"\\t"\$4"\\t"\$5"\\t"\$6"\\t"\$7}' > tmp
-    awk '{if(\$6<10){print \$1"\\t"\$2"\\t"\$3"\\t"\$4"\\tLow confidence"}}' tmp > lc.txt
-    awk '{if(\$6=="hit"){print \$1"\\t"\$2"\\t"\$3"\\t"\$4"\\tNo hit"}}' tmp > no.txt
-    awk '{if(\$6>=10 && \$6!="hit"){print \$1"\\t"\$2"\\t"\$3"\\t"\$4"\\tHigh confidence"}}' tmp > hc.txt
-    cat hc.txt lc.txt no.txt > ${id}.anno.txt
 
     # now we remove contigs shorter 1500 kb and very long ones because ChromoMap has an error when plotting to distinct lenghts
     # we also split into multiple files when we have many contigs, chunk size default 30
-    filter_for_chromomap.rb ${id}.contigs.txt ${id}.anno.txt 1500
+    filter_for_chromomap.rb ${id}.fasta ${id}.tsv ${id}.contigs.txt ${id}.anno.txt 1500
     """
 }
 
+/*
+This does not work likely due to some docker path problems
+  Error in normalizePath(target_dir, "/", TRUE) :
+    path[1]="low_confidence_putative_viral_contigs.chromomap-1_files/htmlwidgets-1.5.1": No such file or directory
+  Calls: <Anonymous> ... pandoc_save_markdown -> lapply -> FUN -> <Anonymous> -> normalizePath
+  Error in setwd(oldwd) : cannot change working directory
+  Calls: <Anonymous> -> pandoc_save_markdown -> setwd
+  Execution halted
+*/
 process chromomap {
     publishDir "${params.output}/${name}/${params.finaldir}/chromomap/", mode: 'copy', pattern: "*.html"
     label 'chromomap'
@@ -63,7 +64,7 @@ process chromomap {
     for (k in 1:length(contigs)){
       c = contigs[k]
       a = annos[k]
-      p <-  chromoMap(paste(c, a,
+      p <-  chromoMap(c, a,
         data_based_color_map = T,
         data_type = "categorical",
         data_colors = list(c("limegreen", "orange","grey")),
