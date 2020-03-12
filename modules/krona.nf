@@ -1,6 +1,6 @@
 process generate_krona_table {
       publishDir "${params.output}/${name}/${params.plotdir}", mode: 'copy', pattern: "*.krona.tsv"
-      publishDir "${params.output}/${name}/${params.finaldir}", mode: 'copy', pattern: "*.krona.tsv"
+      publishDir "${params.output}/${name}/${params.finaldir}/krona/", mode: 'copy', pattern: "*.krona.tsv"
       label 'python3'
 
     input:
@@ -22,7 +22,7 @@ process generate_krona_table {
 }
 
 process krona {
-    publishDir "${params.output}/${name}/${params.plotdir}", mode: 'copy', pattern: "*.krona.html"
+    publishDir "${params.output}/${name}/${params.plotdir}/krona/", mode: 'copy', pattern: "*.krona.html"
     label 'krona'  
   input:
     tuple val(name), val(set_name), file(krona_file)

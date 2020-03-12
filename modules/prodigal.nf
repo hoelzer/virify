@@ -1,6 +1,6 @@
 process prodigal {
       publishDir "${params.output}/${assembly_name}/${params.prodigaldir}", mode: 'copy', pattern: "*.faa"
-      publishDir "${params.output}/${assembly_name}/${params.finaldir}", mode: 'copy', pattern: "*.faa"
+      publishDir "${params.output}/${assembly_name}/${params.finaldir}/cds/", mode: 'copy', pattern: "*.faa"
       label 'prodigal'
 
     input:
