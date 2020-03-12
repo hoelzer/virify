@@ -359,6 +359,8 @@ workflow plot {
         sankey(
           generate_sankey_table(generate_krona_table.out)
         )
+
+        // chromomap
 }
 
 

@@ -1,5 +1,6 @@
 process blast {
       publishDir "${params.output}/${assembly_name}/${params.blastdir}/", mode: 'copy', pattern: "*.blast"
+      publishDir "${params.output}/${assembly_name}/${params.finaldir}/blast/", mode: 'copy', pattern: "*.filtered.blast"
       label 'blast'
 
       errorStrategy 'retry'

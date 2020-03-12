@@ -1,5 +1,5 @@
 process annotation {
-      //publishDir "${params.output}/${name}/", mode: 'copy', pattern: "*_prot_ann_table.tsv"
+      publishDir "${params.output}/${name}/${params.finaldir}", mode: 'copy', pattern: "*_prot_ann_table.tsv"
       label 'annotation'
 
     input:

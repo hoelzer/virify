@@ -1,5 +1,6 @@
 process plot_contig_map {
       publishDir "${params.output}/${name}/${params.plotdir}/", mode: 'copy', pattern: "${set_name}_mapping_results"
+      publishDir "${params.output}/${name}/${params.finaldir}/annotation/", mode: 'copy', pattern: "${set_name}_prot_ann_table_filtered.tsv"
       label 'plot_contig_map'
 
     input:
@@ -12,13 +13,13 @@ process plot_contig_map {
     """
   	# get only contig IDs that have at least one annotation hit 
 	  IDS=\$(awk 'BEGIN{FS="\\t"};{if(\$6!="No hit"){print \$1}}' ${tab} | sort | uniq | grep -v Contig)
-	  head -1 ${tab} > plot.tsv
+	  head -1 ${tab} > ${set_name}_prot_ann_table_filtered.tsv
 	  for ID in \$IDS; do
-		  awk -v id="\$ID" '{if(id==\$1){print \$0}}' ${tab} >> plot.tsv
+		  awk -v id="\$ID" '{if(id==\$1){print \$0}}' ${tab} >> ${set_name}_prot_ann_table_filtered.tsv
 	  done
     mkdir -p ${set_name}_mapping_results
-    cp plot.tsv ${set_name}_mapping_results/
-    make_viral_contig_map.R -o ${set_name}_mapping_results -t plot.tsv
+    cp ${set_name}_prot_ann_table_filtered.tsv ${set_name}_mapping_results/
+    make_viral_contig_map.R -o ${set_name}_mapping_results -t ${set_name}_prot_ann_table_filtered.tsv
     """
 }
 

@@ -9,7 +9,8 @@
 TSV = File.open(ARGV[0], 'r')
 JSON = File.open(ARGV[1], 'w')
 
-cutoff = ARGV[1].to_i
+# instead if this cutoff I filter the TSV for the top x categories before to avoid messy sankey
+#cutoff = ARGV[1].to_i
 
 id2taxa = {}
 sum_for_taxa = {}
@@ -18,7 +19,7 @@ TSV.each do |line|
     split = line.chomp.split("\t")
     count = split[0].to_i
    
-    next if count < cutoff
+    #next if count < cutoff
     
     # nodes
     lineage = split[2,split.size]
