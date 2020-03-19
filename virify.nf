@@ -374,7 +374,7 @@ workflow plot {
         if (workflow.profile != 'conda') {
           combined_annotated_proteins_ch = annotated_proteins_ch.groupTuple().map { tuple(it[0], 'all', it[2], it[3]) }.concat(annotated_proteins_ch)
           //chromomap(
-            generate_chromomap_table(combined_annotated_proteins_ch)
+            //generate_chromomap_table(combined_annotated_proteins_ch)
           //)
         }
 }
