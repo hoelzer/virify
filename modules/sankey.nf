@@ -1,5 +1,6 @@
 process generate_sankey_table {
       publishDir "${params.output}/${name}/${params.plotdir}", mode: 'copy', pattern: "${set_name}.sankey.*"
+      publishDir "${params.output}/${name}/${params.finaldir}/sankey/", mode: 'copy', pattern: "${set_name}.sankey.filtered-${params.sankey}.json"
       label 'ruby'
 
     input:
@@ -21,6 +22,7 @@ process generate_sankey_table {
 
 process sankey {
     publishDir "${params.output}/${name}/${params.plotdir}", mode: 'copy', pattern: "*.sankey.html"
+    publishDir "${params.output}/${name}/${params.finaldir}/sankey/", mode: 'copy', pattern: "*.sankey.html"
     label 'sankey'
 
     input:

@@ -1,5 +1,6 @@
 process blast_filter {
       publishDir "${params.output}/${assembly_name}/${params.blastdir}/", mode: 'copy', pattern: "*.meta"
+      publishDir "${params.output}/${assembly_name}/${params.finaldir}/blast/", mode: 'copy', pattern: "*.meta"
       label 'ruby'
 
       errorStrategy 'retry'

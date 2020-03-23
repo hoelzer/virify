@@ -1,5 +1,6 @@
 process restore {
       publishDir "${params.output}/${name}/", mode: 'copy', pattern: "*_original.fasta"
+      publishDir "${params.output}/${name}/${params.finaldir}/contigs/", mode: 'copy', pattern: "*_original.fasta"
       label 'python3'
 
     input:

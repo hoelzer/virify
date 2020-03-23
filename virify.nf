@@ -119,10 +119,12 @@ include blast_filter from './modules/blast_filter'
 
 //visuals
 include plot_contig_map from './modules/plot_contig_map' 
-include generate_krona_table from './modules/generate_krona_table' 
+include generate_krona_table from './modules/krona' 
 include generate_sankey_table from './modules/sankey'
+include generate_chromomap_table from './modules/chromomap'
 include krona from './modules/krona'
 include sankey from './modules/sankey'
+include chromomap from './modules/chromomap'
 
 //include './modules/kaiju' params(output: params.output, illumina: params.illumina, fasta: params.fasta)
 //include './modules/filter_reads' params(output: params.output)
@@ -337,8 +339,13 @@ workflow annotate {
           hmmscan_vpf(prodigal.out, vpf_db)
         }
         
+    predicted_contigs_filtered = predicted_contigs.map { id, set_name, fasta -> [set_name, id, fasta] }
+    plot_contig_map_filtered = plot_contig_map.out.map { id, set_name, dir, table -> [set_name, table] }
+    chromomap_ch = predicted_contigs_filtered.join(plot_contig_map_filtered)
+
     emit:
       assign.out
+      chromomap_ch
 }
 
 
@@ -346,19 +353,30 @@ workflow annotate {
 */
 workflow plot {
     take:
-      assigned_lineages
+      assigned_lineages_ch
+      annotated_proteins_ch
 
     main:
         // krona
-        combined_assigned_lineages = assigned_lineages.groupTuple().map { tuple(it[0], 'all', it[2]) }.concat(assigned_lineages)
+        combined_assigned_lineages_ch = assigned_lineages_ch.groupTuple().map { tuple(it[0], 'all', it[2]) }.concat(assigned_lineages_ch)
         krona(
-          generate_krona_table(combined_assigned_lineages)
+          generate_krona_table(combined_assigned_lineages_ch)
         )
 
         // sankey
-        sankey(
-          generate_sankey_table(generate_krona_table.out)
-        )
+        if (workflow.profile != 'conda') {
+          sankey(
+            generate_sankey_table(generate_krona_table.out)
+         )
+        }
+
+        // chromomap
+        if (workflow.profile != 'conda') {
+          combined_annotated_proteins_ch = annotated_proteins_ch.groupTuple().map { tuple(it[0], 'all', it[2], it[3]) }.concat(annotated_proteins_ch)
+          //chromomap(
+            //generate_chromomap_table(combined_annotated_proteins_ch)
+          //)
+        }
 }
 
 
