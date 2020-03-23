@@ -4,7 +4,7 @@ process restore {
       label 'python3'
 
     input:
-      tuple val(name), file(fasta), file(assembly), file(map) 
+      tuple val(name), file(fasta), file(virsorter_meta), file(assembly), file(map) 
     
     output:
       tuple val(name), env(BN), file("*_original.fasta")
@@ -12,7 +12,7 @@ process restore {
     shell:
     """    
     BN=\$(basename ${fasta} .fna)
-    rename_fasta.py -i ${fasta} -m ${map} -o \${BN}_original.fasta restore 2> /dev/null
+    rename_fasta.py -i ${fasta} -m ${map} -o \${BN}_original.fasta -d ${virsorter_meta} restore 2> /dev/null
     """
 }
 
