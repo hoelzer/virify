@@ -5,6 +5,7 @@ import glob
 import re
 import sys
 import csv
+from copy import copy
 from os.path import join
 
 from Bio import SeqIO
@@ -32,6 +33,18 @@ class Record:
 
     def to_tsv(self):
         return [self.seq_id, self.category, self.circular, *self.prange]
+
+    def get_seq_record(self):
+        """Get the SeqRecord with the category and prange encoded in the header.
+        """
+        seq_record = copy(self.seq_record)
+        if self.category == "prophage" and len(self.prange):
+            seq_record.id += f" prophage-{self.prange[0]}:{self.prange[1]}"
+        if self.circular:
+            seq_record.id += f" phage-circular"
+        # clean
+        seq_record.description = ""
+        return seq_record
 
     def __hash__(self):
         return hash(self.seq_id)
@@ -96,15 +109,15 @@ def _parse_virsorter_metadata(name):
 
 
 def parse_virus_sorter(folder_name):
-    """Extract high, low and prophages confidence contigs from virus sorter results.
+    """Extract high, low and prophages confidence Records from virus sorter results.
     High confidence are contigs in the categories 1 and 2
     Low confidence are contigs in the category 3
     Putative prophages are in categories 4 and 5
     (which correspond to VirSorter confidence categories 1 and 2)
     """
-    high_confidence = set()
-    low_confidence = set()
-    prophages = set()
+    high_confidence = dict()
+    low_confidence = dict()
+    prophages = dict()
 
     files = glob.glob(join(folder_name, '*cat-[1,2,3,4,5].fasta'))
 
@@ -114,12 +127,13 @@ def parse_virus_sorter(folder_name):
             clean_name, circular, prange = _parse_virsorter_metadata(record.id)
             record.id = clean_name
             if category in ["1", "2"]:
-                high_confidence.add(Record(record, "high_confidence", circular))
+                high_confidence[record.id] = Record(record, "high_confidence", circular)
             elif category == "3":
-                low_confidence.add(Record(record, "low_confidence", circular))
+                low_confidence[record.id] = Record(record, "low_confidence", circular)
             elif category in ["4", "5"]:
                 # add the prophage position within the contig
-                prophages.add(Record(record, "prophage", circular, prange))
+                prophages.setdefault(record.id, []).append(
+                    Record(record, "prophage", circular, prange))
             else:
                 print(f"Contig has an invalid category : {category}")
 
@@ -155,15 +169,19 @@ def merge_annotations(pprmeta, finder, sorter, assembly):
     for seq_record in SeqIO.parse(assembly, "fasta"):
         # HC
         if seq_record.id in sorter_hc:
-            hc_predictions_contigs.append(seq_record)
+            hc_predictions_contigs.append(sorter_hc.get(seq_record.id).get_seq_record())
         # Pro
         elif seq_record.id in sorter_prophages:
-            prophage_predictions_contigs.append(seq_record)
+            # a contig may have several prophages
+            # for prophages write the record as it holds the
+            # sliced fasta
+            for record in sorter_prophages.get(seq_record.id):
+                prophage_predictions_contigs.append(record.get_seq_record())
         # LC
         elif seq_record.id in finder_lc:
             lc_predictions_contigs.append(seq_record)
         elif seq_record.id in sorter_lc and seq_record.id in finder_lowestc:
-            lc_predictions_contigs.append(seq_record)
+            lc_predictions_contigs.append(sorter_lc.get(seq_record.id).get_seq_record())
         elif seq_record.id in pprmeta_lc and seq_record.id in finder_lowestc:
             lc_predictions_contigs.append(seq_record)
 
@@ -193,16 +211,17 @@ def main(pprmeta, finder, sorter, assembly, outdir):
 
     # VirSorter provides some metadata on each annotation
     # - is circular
-    # - prophage start and end within a contig.
+    # - prophage start and end within a contig
     if sorter_hc or sorter_lc or sorter_prophages:
         with open(join(outdir, "virsorter_metadata.tsv"), "w") as pm_tsv_file:
-            header = ["contig", "category", "circular", 
+            header = ["contig", "category", "circular",
                       "prophage_start", "prophage_end"]
             tsv_writer = csv.writer(pm_tsv_file, delimiter="\t")
             tsv_writer.writerow(header)
-            tsv_writer.writerows([shc.to_tsv() for shc in sorter_hc])
-            tsv_writer.writerows([slc.to_tsv() for slc in sorter_lc])
-            tsv_writer.writerows([ph.to_tsv() for ph in sorter_prophages])
+            tsv_writer.writerows([shc.to_tsv() for _, shc in sorter_hc.items()])
+            tsv_writer.writerows([slc.to_tsv() for _, slc in sorter_lc.items()])
+            for _, plist in sorter_prophages.items():
+                tsv_writer.writerows([ph.to_tsv() for ph in plist])
 
     if not at_least_one:
         print("Overall, no putative _viral contigs or prophages were detected"

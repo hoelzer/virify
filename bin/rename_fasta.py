@@ -3,13 +3,25 @@
 import argparse
 import csv
 import sys
-from distutils.util import strtobool
+import re
 
 
-def _clean_seq_name(seq):
+def _parse_name(seq):
+    """Parse a fasta header and remove > and new lines.
+    If [metadata is True] then parse the prophage metadata from
+    the header.
+    Current metadata: phage-circular and prophage-<start>:<end>
+    """
     if not seq:
         return seq
-    return seq.replace(">", "").replace("\n", "")
+    clean = seq.replace(">", "").replace("\n", "")
+
+    clean = clean.replace("phage-circular", "")
+    match = re.search(r"prophage-\d+:\d+", clean)
+    prophage = match[0] if match else ""
+
+    return clean.replace(prophage, "").strip(), \
+        "phage-circular" if "phage-circular" in seq else "", prophage
 
 
 def rename(args):
@@ -25,7 +37,8 @@ def rename(args):
             for line in fasta_in:
                 if line.startswith(">"):
                     fasta_out.write(f">{args.prefix}{count}\n")
-                    tsv_map.writerow([_clean_seq_name(line), f"{args.prefix}{count}"])
+                    name, *_ = _parse_name(line)
+                    tsv_map.writerow([name, f"{args.prefix}{count}"])
                     count += 1
                 else:
                     fasta_out.write(line)
@@ -34,18 +47,9 @@ def rename(args):
 
 def restore(args):
     """Restore a multi-fasta fasta using the mapping file.
-    VirSorter metadata: if provided then fasta headers will be extended with
-    - circular or not information
-    - prophage and start/end within the contig
+    VirSorter metadata is preserved.
     """
     print("Restoring " + args.input)
-    sorter_metadata = {}
-    if args.vsmetadata:
-        print("Including VirSorter metadata in headers")
-        with open(args.vsmetadata, "r") as vs_tsv:
-            for r in csv.DictReader(vs_tsv, delimiter="\t"):
-                sorter_metadata[r["contig"]] = r
-
     mapping = {}
     with open(args.map, "r") as map_tsv:
         for m in csv.DictReader(map_tsv, delimiter="\t"):
@@ -55,19 +59,14 @@ def restore(args):
         with open(args.output, "w") as fasta_out:
             for line in fasta_in:
                 if line.startswith(">"):
-                    mod = _clean_seq_name(line)
+                    mod, *metadata = _parse_name(line)
+                    # prophage metada removal
                     original = mapping.get(mod, None)
                     if not original:
-                        print(
-                            f"Missing sequence in mapping: {line}", file=sys.stderr)
+                        print(f"Missing sequence in mapping for {mod}. Header: {line}",
+                              file=sys.stderr)
                         original = mod
-                    vs_metadata = sorter_metadata.get(mod)
-                    if vs_metadata and vs_metadata["category"] == "prophage":
-                        original += f" prophage-{vs_metadata['prophage_start']}:" + \
-                                    f"{vs_metadata['prophage_end']}"
-                    if vs_metadata and strtobool(vs_metadata.get("circular")):
-                        original += f" phage-circular"
-                    fasta_out.write(f">{original}\n")
+                    fasta_out.write(f">{original} {''.join(metadata)}\n")
                 else:
                     fasta_out.write(line)
 
@@ -81,12 +80,6 @@ def main():
     parser.add_argument(
         "-m", "--map", help="Map current names with the renames", type=str,
         default="fasta_map.tsv")
-    parser.add_argument(
-        "-d", "--vsmetadata",
-        help="VirSorter metadata file, if provided the information about prophage start/end "
-             "and if circular will be included in the fasta header",
-        type=str, required=False
-    )
     parser.add_argument(
         "-o", "--output", help="indicate output FASTA file", required=True)
     subparser = parser.add_subparsers()

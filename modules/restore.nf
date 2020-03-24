@@ -12,7 +12,7 @@ process restore {
     shell:
     """    
     BN=\$(basename ${fasta} .fna)
-    rename_fasta.py -i ${fasta} -m ${map} -o \${BN}_original.fasta -d ${virsorter_meta} restore 2> /dev/null
+    rename_fasta.py -i ${fasta} -m ${map} -o \${BN}_original.fasta restore 2> /dev/null
     """
 }
 
