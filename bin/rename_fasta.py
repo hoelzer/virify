@@ -1,14 +1,27 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 
 import argparse
 import csv
 import sys
+import re
 
 
-def _clean_seq_name(seq):
+def _parse_name(seq):
+    """Parse a fasta header and remove > and new lines.
+    If [metadata is True] then parse the prophage metadata from
+    the header.
+    Current metadata: phage-circular and prophage-<start>:<end>
+    """
     if not seq:
         return seq
-    return seq.replace(">", "").replace("\n", "")
+    clean = seq.replace(">", "").replace("\n", "")
+
+    clean = clean.replace("phage-circular", "")
+    match = re.search(r"prophage-\d+:\d+", clean)
+    prophage = match[0] if match else ""
+
+    return clean.replace(prophage, "").strip(), \
+        "phage-circular" if "phage-circular" in seq else "", prophage
 
 
 def rename(args):
@@ -19,12 +32,13 @@ def rename(args):
     with open(args.input, "r") as fasta_in:
         with open(args.output, "w") as fasta_out, open(args.map, "w") as map_tsv:
             count = 1
-            tsv_map = csv.writer(map_tsv)
+            tsv_map = csv.writer(map_tsv, delimiter="\t")
             tsv_map.writerow(["original", "renamed"])
             for line in fasta_in:
                 if line.startswith(">"):
                     fasta_out.write(f">{args.prefix}{count}\n")
-                    tsv_map.writerow([_clean_seq_name(line), f"{args.prefix}{count}"])
+                    name, *_ = _parse_name(line)
+                    tsv_map.writerow([name, f"{args.prefix}{count}"])
                     count += 1
                 else:
                     fasta_out.write(line)
@@ -33,25 +47,26 @@ def rename(args):
 
 def restore(args):
     """Restore a multi-fasta fasta using the mapping file.
+    VirSorter metadata is preserved.
     """
     print("Restoring " + args.input)
-
     mapping = {}
     with open(args.map, "r") as map_tsv:
-        for m in csv.DictReader(map_tsv):
+        for m in csv.DictReader(map_tsv, delimiter="\t"):
             mapping[m["renamed"]] = m["original"]
 
     with open(args.input, "r") as fasta_in:
         with open(args.output, "w") as fasta_out:
             for line in fasta_in:
                 if line.startswith(">"):
-                    mod = _clean_seq_name(line)
+                    mod, *metadata = _parse_name(line)
+                    # prophage metada removal
                     original = mapping.get(mod, None)
                     if not original:
-                        print(
-                            f"Missing sequence in mapping: {line}", file=sys.stderr)
+                        print(f"Missing sequence in mapping for {mod}. Header: {line}",
+                              file=sys.stderr)
                         original = mod
-                    fasta_out.write(f">{original}\n")
+                    fasta_out.write(f">{original} {''.join(metadata)}\n")
                 else:
                     fasta_out.write(line)
 

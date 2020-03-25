@@ -1,6 +1,6 @@
 process assign {
       publishDir "${params.output}/${name}/${params.taxdir}", mode: 'copy', pattern: "*tax_assign.tsv"
-      publishDir "${params.output}/${name}/${params.finaldir}", mode: 'copy', pattern: "*tax_assign.tsv"
+      publishDir "${params.output}/${name}/${params.finaldir}/taxonomy", mode: 'copy', pattern: "*tax_assign.tsv"
       label 'assign'
 
     input:

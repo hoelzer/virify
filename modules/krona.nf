@@ -23,6 +23,7 @@ process generate_krona_table {
 
 process krona {
     publishDir "${params.output}/${name}/${params.plotdir}/krona/", mode: 'copy', pattern: "*.krona.html"
+    publishDir "${params.output}/${name}/${params.finaldir}/krona/", mode: 'copy', pattern: "*.krona.html"
     label 'krona'  
   input:
     tuple val(name), val(set_name), file(krona_file)
