@@ -146,7 +146,7 @@ workflow download_pprmeta {
     if (!params.cloudProcess) { pprmetaGet(); git = pprmetaGet.out }
     // cloud storage via preload.exists()
     if (params.cloudProcess) {
-      preload = file("${params.cloudDatabase}/pprmeta")
+      preload = file("${params.cloudDatabase}/pprmeta/*")
       if (preload.exists()) { git = preload }
       else  { pprmetaGet(); git = pprmetaGet.out } 
     }
@@ -159,7 +159,7 @@ workflow download_model_meta {
     if (!params.cloudProcess) { metaGetDB(); db = metaGetDB.out }
     // cloud storage via preload.exists()
     if (params.cloudProcess) {
-      preload = file("${params.cloudDatabase}/models")
+      preload = file("${params.cloudDatabase}/models/Additional_data_vpHMMs.dict")
       if (preload.exists()) { db = preload }
       else  { metaGetDB(); db = metaGetDB.out } 
     }
