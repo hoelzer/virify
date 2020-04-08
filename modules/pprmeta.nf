@@ -4,6 +4,7 @@ process pprmeta {
 
     input:
       tuple val(name), file(fasta), val(contig_number)
+      path(pprmeta_git)
     
     when: 
       contig_number.toInteger() > 0 
@@ -13,11 +14,30 @@ process pprmeta {
 
     script:
       """
-      git clone https://github.com/Stormrider935/PPR-Meta.git
-      cp PPR-Meta/* .  
+      [ -d "pprmeta" ] && cp pprmeta/* .
       ./PPR_Meta ${fasta} ${name}_pprmeta.csv
       """
 }
 
  // .fasta is not working here. has to be .fa
  // need to implement this so its fixed 
+
+process pprmetaGet {
+  label 'noDocker'    
+  if (params.cloudProcess) { 
+    publishDir "${params.cloudDatabase}/pprmeta", mode: 'copy', pattern: "*" 
+  }
+  else { 
+    storeDir "nextflow-autodownload-databases/pprmeta" 
+  }  
+
+  output:
+    path("*")
+
+  script:
+    """
+    git clone https://github.com/Stormrider935/PPR-Meta.git
+    mv PPR-Meta/* .  
+    rm -r PPR-Meta
+    """
+}
