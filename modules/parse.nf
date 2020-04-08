@@ -2,6 +2,7 @@ process parse {
       errorStrategy { task.exitStatus = 1 ? 'ignore' :  'terminate' }
       publishDir "${params.output}/${name}/", mode: 'copy', pattern: "*.fna"
       publishDir "${params.output}/${name}/", mode: 'copy', pattern: "virsorter_metadata.tsv"
+      publishDir "${params.output}/${name}/${params.finaldir}/", mode: 'copy', pattern: "${name}_virus_predictions.log"
       label 'python3'
 
     input:
@@ -11,11 +12,12 @@ process parse {
       contig_number.toInteger() > 0 
 
     output:
-      tuple val(name), file("*.fna"), file('virsorter_metadata.tsv')
+      tuple val(name), file("*.fna"), file('virsorter_metadata.tsv'), file("${name}_virus_predictions.log")
     
     shell:
     """
-    parse_viral_pred.py -a ${fasta} -f ${virfinder} -s ${virsorter}/Predicted_viral_sequences/ -p ${pprmeta}
+    touch virsorter_metadata.tsv
+    parse_viral_pred.py -a ${fasta} -f ${virfinder} -s ${virsorter}/Predicted_viral_sequences/ -p ${pprmeta} &> ${name}_virus_predictions.log
     """
 }
 

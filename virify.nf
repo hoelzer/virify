@@ -77,8 +77,6 @@ if (params.illumina == '' &&  params.fasta == '' ) {
 /* Comment section: */
 
 //db
-include pprmetaGet from './modules/pprmeta' 
-include metaGetDB from './modules/ratio_evalue'
 include virsorterGetDB from './modules/virsorterGetDB' 
 include viphogGetDB from './modules/viphogGetDB' 
 include ncbiGetDB from './modules/ncbiGetDB' 
@@ -140,31 +138,6 @@ include chromomap from './modules/chromomap'
 The Database Section is designed to "auto-get" pre prepared databases.
 It is written for local use and cloud use.*/
 
-workflow download_pprmeta {
-    main:
-    // local storage via storeDir
-    if (!params.cloudProcess) { pprmetaGet(); git = pprmetaGet.out }
-    // cloud storage via preload.exists()
-    if (params.cloudProcess) {
-      preload = file("${params.cloudDatabase}/pprmeta")
-      if (preload.exists()) { git = preload }
-      else  { pprmetaGet(); git = pprmetaGet.out } 
-    }
-  emit: git
-}
-
-workflow download_model_meta {
-    main:
-    // local storage via storeDir
-    if (!params.cloudProcess) { metaGetDB(); db = metaGetDB.out }
-    // cloud storage via preload.exists()
-    if (params.cloudProcess) {
-      preload = file("${params.cloudDatabase}/models/Additional_data_vpHMMs.dict")
-      if (preload.exists()) { db = preload }
-      else  { metaGetDB(); db = metaGetDB.out } 
-    }
-  emit: db
-}
 
 workflow download_virsorter_db {
     main:
@@ -294,7 +267,6 @@ workflow download_kaiju_db {
 workflow detect {
     take:   assembly
             virsorter_db    
-            pprmeta_git
 
     main:
         // rename contigs
@@ -306,7 +278,7 @@ workflow detect {
         // virus detection --> VirSorter, VirFinder and PPR-Meta
         virsorter(length_filtering.out, virsorter_db)     
         virfinder(length_filtering.out)
-        pprmeta(length_filtering.out, pprmeta_git)
+        pprmeta(length_filtering.out)
 
         // parsing predictions
         parse(length_filtering.out.join(virfinder.out).join(virsorter.out).join(pprmeta.out))
@@ -331,7 +303,6 @@ workflow annotate {
             vogdb_db
             vpf_db
             imgvr_db
-            additional_model_data
 
     main:
         // ORF detection --> prodigal
@@ -343,7 +314,7 @@ workflow annotate {
         hmm_postprocessing(hmmscan_viphogs.out)
 
         // calculate hit qual per protein
-        ratio_evalue(hmm_postprocessing.out, additional_model_data)
+        ratio_evalue(hmm_postprocessing.out)
 
         // annotate contigs based on ViPhOGs
         annotation(ratio_evalue.out)
@@ -370,7 +341,7 @@ workflow annotate {
         
     predicted_contigs_filtered = predicted_contigs.map { id, set_name, fasta -> [set_name, id, fasta] }
     plot_contig_map_filtered = plot_contig_map.out.map { id, set_name, dir, table -> [set_name, table] }
-    chromomap_ch = predicted_contigs_filtered.join(plot_contig_map_filtered)
+    chromomap_ch = predicted_contigs_filtered.join(plot_contig_map_filtered).map { set_name, assembly_name, fasta, tsv -> [assembly_name, set_name, fasta, tsv]}
 
     emit:
       assign.out
@@ -388,6 +359,7 @@ workflow plot {
     main:
         // krona
         combined_assigned_lineages_ch = assigned_lineages_ch.groupTuple().map { tuple(it[0], 'all', it[2]) }.concat(assigned_lineages_ch)
+        //combined_assigned_lineages_ch.view()
         krona(
           generate_krona_table(combined_assigned_lineages_ch)
         )
@@ -400,11 +372,11 @@ workflow plot {
         }
 
         // chromomap
-        if (workflow.profile != 'conda') {
+        if (workflow.profile != 'conda' && params.chromomap) {
           combined_annotated_proteins_ch = annotated_proteins_ch.groupTuple().map { tuple(it[0], 'all', it[2], it[3]) }.concat(annotated_proteins_ch)
-          //chromomap(
-            //generate_chromomap_table(combined_annotated_proteins_ch)
-          //)
+          chromomap(
+            generate_chromomap_table(combined_annotated_proteins_ch)
+          )
         }
 }
 
@@ -441,9 +413,6 @@ workflow {
     /**************************************************************/
     // download all databases
     
-    pprmeta_git = download_pprmeta()
-    additional_model_data = download_model_meta()
-
     if (params.virsorter) { virsorter_db = file(params.virsorter)} 
     else { download_virsorter_db(); virsorter_db = download_virsorter_db.out }
 
@@ -477,7 +446,7 @@ workflow {
     if (params.fasta) {
       plot(
         annotate(
-          detect(fasta_input_ch, virsorter_db, pprmeta_git), viphog_db, ncbi_db, rvdb_db, pvogs_db, vogdb_db, vpf_db, imgvr_db, additional_model_data)
+          detect(fasta_input_ch, virsorter_db), viphog_db, ncbi_db, rvdb_db, pvogs_db, vogdb_db, vpf_db, imgvr_db)
       )
     } 
 
@@ -486,7 +455,7 @@ workflow {
       assemble_illumina(illumina_input_ch)           
       plot(
         annotate(
-          detect(assemble_illumina.out, virsorter_db, pprmeta_git), viphog_db, ncbi_db, rvdb_db, pvogs_db, vogdb_db, vpf_db, imgvr_db, additional_model_data)
+          detect(assemble_illumina.out, virsorter_db), viphog_db, ncbi_db, rvdb_db, pvogs_db, vogdb_db, vpf_db, imgvr_db)
       )
     }
 }
@@ -539,6 +508,7 @@ def helpMSG() {
     --virome            VirSorter parameter, set when running a data set mostly composed of viruses [default: $params.virome]
     --hmmextend         Use additional databases for more hmmscan results [default: $params.hmmextend]
     --blastextend       Use additional BLAST database (IMG/VR) for more annotation [default: $params.blastextend]
+    --chromomap         WIP feature [default: $params.chromomap]
     --length            Initial length filter in kb [default: $params.length]
     --sankey            select the x taxa with highest count for sankey plot, try and error to change plot [default: $params.sankey]
     --chunk             WIP: chunk FASTA files into smaller pieces for parallel calculation [default: $params.chunk]
