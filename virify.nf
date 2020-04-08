@@ -370,7 +370,7 @@ workflow annotate {
         
     predicted_contigs_filtered = predicted_contigs.map { id, set_name, fasta -> [set_name, id, fasta] }
     plot_contig_map_filtered = plot_contig_map.out.map { id, set_name, dir, table -> [set_name, table] }
-    chromomap_ch = predicted_contigs_filtered.join(plot_contig_map_filtered)
+    chromomap_ch = predicted_contigs_filtered.join(plot_contig_map_filtered).map { set_name, assembly_name, fasta, tsv -> [assembly_name, set_name, fasta, tsv]}
 
     emit:
       assign.out
@@ -388,6 +388,7 @@ workflow plot {
     main:
         // krona
         combined_assigned_lineages_ch = assigned_lineages_ch.groupTuple().map { tuple(it[0], 'all', it[2]) }.concat(assigned_lineages_ch)
+        //combined_assigned_lineages_ch.view()
         krona(
           generate_krona_table(combined_assigned_lineages_ch)
         )
@@ -400,11 +401,11 @@ workflow plot {
         }
 
         // chromomap
-        if (workflow.profile != 'conda') {
+        if (workflow.profile != 'conda' && params.chromomap) {
           combined_annotated_proteins_ch = annotated_proteins_ch.groupTuple().map { tuple(it[0], 'all', it[2], it[3]) }.concat(annotated_proteins_ch)
-          //chromomap(
-            //generate_chromomap_table(combined_annotated_proteins_ch)
-          //)
+          chromomap(
+            generate_chromomap_table(combined_annotated_proteins_ch)
+          )
         }
 }
 
@@ -539,6 +540,7 @@ def helpMSG() {
     --virome            VirSorter parameter, set when running a data set mostly composed of viruses [default: $params.virome]
     --hmmextend         Use additional databases for more hmmscan results [default: $params.hmmextend]
     --blastextend       Use additional BLAST database (IMG/VR) for more annotation [default: $params.blastextend]
+    --chromomap         WIP feature [default: $params.chromomap]
     --length            Initial length filter in kb [default: $params.length]
     --sankey            select the x taxa with highest count for sankey plot, try and error to change plot [default: $params.sankey]
     --chunk             WIP: chunk FASTA files into smaller pieces for parallel calculation [default: $params.chunk]

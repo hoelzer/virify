@@ -1,12 +1,12 @@
 process generate_chromomap_table {
-      publishDir "${params.output}/${name}/${params.finaldir}/chromomap/", mode: 'copy', pattern: "${set_name}.filtered-*.contigs.txt"
+      publishDir "${params.output}/${name}/${params.finaldir}/chromomap/", mode: 'copy', pattern: "${id}.filtered-*.contigs.txt"
       label 'ruby'
 
     input:
-      tuple val(set_name), val(name), file(assembly), file(annotation_table)
+      tuple val(name), val(set_name), file(assembly), file(annotation_table)
     
     output:
-      tuple val(name), val(set_name), file("${set_name}.filtered-*.contigs.txt"), file("${set_name}.filtered-*.anno.txt")
+      tuple val(name), val(set_name), file("${id}.filtered-*.contigs.txt"), file("${id}.filtered-*.anno.txt")
     
     shell:
     id = set_name
@@ -27,16 +27,8 @@ process generate_chromomap_table {
     """
 }
 
-/*
-This does not work likely due to some docker path problems
-  Error in normalizePath(target_dir, "/", TRUE) :
-    path[1]="low_confidence_putative_viral_contigs.chromomap-1_files/htmlwidgets-1.5.1": No such file or directory
-  Calls: <Anonymous> ... pandoc_save_markdown -> lapply -> FUN -> <Anonymous> -> normalizePath
-  Error in setwd(oldwd) : cannot change working directory
-  Calls: <Anonymous> -> pandoc_save_markdown -> setwd
-  Execution halted
-*/
 process chromomap {
+    errorStrategy { task.exitStatus = 1 ? 'ignore' :  'terminate' }
     publishDir "${params.output}/${name}/${params.finaldir}/chromomap/", mode: 'copy', pattern: "*.html"
     label 'chromomap'
 
