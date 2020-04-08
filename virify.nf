@@ -77,6 +77,8 @@ if (params.illumina == '' &&  params.fasta == '' ) {
 /* Comment section: */
 
 //db
+include pprmetaGet from './modules/pprmeta' 
+include metaGetDB from './modules/ratio_evalue'
 include virsorterGetDB from './modules/virsorterGetDB' 
 include viphogGetDB from './modules/viphogGetDB' 
 include ncbiGetDB from './modules/ncbiGetDB' 
@@ -138,6 +140,31 @@ include chromomap from './modules/chromomap'
 The Database Section is designed to "auto-get" pre prepared databases.
 It is written for local use and cloud use.*/
 
+workflow download_pprmeta {
+    main:
+    // local storage via storeDir
+    if (!params.cloudProcess) { pprmetaGet(); git = pprmetaGet.out }
+    // cloud storage via preload.exists()
+    if (params.cloudProcess) {
+      preload = file("${params.cloudDatabase}/pprmeta")
+      if (preload.exists()) { git = preload }
+      else  { pprmetaGet(); git = pprmetaGet.out } 
+    }
+  emit: git
+}
+
+workflow download_model_meta {
+    main:
+    // local storage via storeDir
+    if (!params.cloudProcess) { metaGetDB(); db = metaGetDB.out }
+    // cloud storage via preload.exists()
+    if (params.cloudProcess) {
+      preload = file("${params.cloudDatabase}/models/Additional_data_vpHMMs.dict")
+      if (preload.exists()) { db = preload }
+      else  { metaGetDB(); db = metaGetDB.out } 
+    }
+  emit: db
+}
 
 workflow download_virsorter_db {
     main:
@@ -266,7 +293,8 @@ workflow download_kaiju_db {
 */
 workflow detect {
     take:   assembly
-            virsorter_db    
+            virsorter_db  
+            pprmeta_git  
 
     main:
         // rename contigs
@@ -278,7 +306,7 @@ workflow detect {
         // virus detection --> VirSorter, VirFinder and PPR-Meta
         virsorter(length_filtering.out, virsorter_db)     
         virfinder(length_filtering.out)
-        pprmeta(length_filtering.out)
+        pprmeta(length_filtering.out, pprmeta_git)
 
         // parsing predictions
         parse(length_filtering.out.join(virfinder.out).join(virsorter.out).join(pprmeta.out))
@@ -303,6 +331,7 @@ workflow annotate {
             vogdb_db
             vpf_db
             imgvr_db
+            additional_model_data
 
     main:
         // ORF detection --> prodigal
@@ -314,7 +343,7 @@ workflow annotate {
         hmm_postprocessing(hmmscan_viphogs.out)
 
         // calculate hit qual per protein
-        ratio_evalue(hmm_postprocessing.out)
+        ratio_evalue(hmm_postprocessing.out, additional_model_data)
 
         // annotate contigs based on ViPhOGs
         annotation(ratio_evalue.out)
@@ -411,7 +440,13 @@ workflow assemble_illumina {
 workflow {
 
     /**************************************************************/
-    // download all databases
+    // check/ download all databases
+    
+    if (params.pprmeta) { pprmeta_git = file(params.pprmeta) }
+    else ( pprmeta_git = download_pprmeta() }
+
+    if (params.meta) { additional_model_data = file(params.meta) }
+    else ( additional_model_data = download_model_meta()
     
     if (params.virsorter) { virsorter_db = file(params.virsorter)} 
     else { download_virsorter_db(); virsorter_db = download_virsorter_db.out }
@@ -446,7 +481,7 @@ workflow {
     if (params.fasta) {
       plot(
         annotate(
-          detect(fasta_input_ch, virsorter_db), viphog_db, ncbi_db, rvdb_db, pvogs_db, vogdb_db, vpf_db, imgvr_db)
+          detect(fasta_input_ch, virsorter_db, pprmeta_git), viphog_db, ncbi_db, rvdb_db, pvogs_db, vogdb_db, vpf_db, imgvr_db, additional_model_data)
       )
     } 
 
@@ -455,7 +490,7 @@ workflow {
       assemble_illumina(illumina_input_ch)           
       plot(
         annotate(
-          detect(assemble_illumina.out, virsorter_db), viphog_db, ncbi_db, rvdb_db, pvogs_db, vogdb_db, vpf_db, imgvr_db)
+          detect(assemble_illumina.out, virsorter_db, pprmeta_git), viphog_db, ncbi_db, rvdb_db, pvogs_db, vogdb_db, vpf_db, imgvr_db, additional_model_data)
       )
     }
 }
@@ -499,6 +534,8 @@ def helpMSG() {
     --vpf               the VPF from IMG/VR, hmmpress'ed [default: $params.vpf]
     --ncbi              a NCBI taxonomy database, from ete3 import NCBITaxa, named ete3_ncbi_tax.sqlite [default: $params.ncbi]
     --imgvr             the IMG/VR, viral (meta)genome sequences [default: $params.imgvr]
+    --pprmeta           the PPR-Meta github [default: $params.pprmeta]
+    --meta              the XLSX dictionary w/ meta information about ViPhOG models [default: $params.meta]
     Important! If you provide your own hmmer database follow this format:
         rvdb/rvdb.hmm --> <folder>/<name>.hmm && 'folder' == 'name'
     and provide the database following this command structure
