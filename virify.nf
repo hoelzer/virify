@@ -146,7 +146,7 @@ workflow download_pprmeta {
     if (!params.cloudProcess) { pprmetaGet(); git = pprmetaGet.out }
     // cloud storage via preload.exists()
     if (params.cloudProcess) {
-      preload = file("${params.cloudDatabase}/pprmeta/*")
+      preload = path("${params.cloudDatabase}/pprmeta/*")
       if (preload.exists()) { git = preload }
       else  { pprmetaGet(); git = pprmetaGet.out } 
     }
