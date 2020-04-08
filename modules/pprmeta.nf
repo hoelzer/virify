@@ -14,6 +14,7 @@ process pprmeta {
 
     script:
       """
+      [ -d "pprmeta" ] && cp pprmeta/* .
       ./PPR_Meta ${fasta} ${name}_pprmeta.csv
       """
 }
@@ -36,7 +37,7 @@ process pprmetaGet {
   script:
     """
     git clone https://github.com/Stormrider935/PPR-Meta.git
-    cp PPR-Meta/* .  
+    mv PPR-Meta/* .  
     rm -r PPR-Meta
     """
 }
