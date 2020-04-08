@@ -443,10 +443,10 @@ workflow {
     // check/ download all databases
     
     if (params.pprmeta) { pprmeta_git = file(params.pprmeta) }
-    else ( pprmeta_git = download_pprmeta() }
+    else { pprmeta_git = download_pprmeta() }
 
     if (params.meta) { additional_model_data = file(params.meta) }
-    else ( additional_model_data = download_model_meta()
+    else { additional_model_data = download_model_meta() }
     
     if (params.virsorter) { virsorter_db = file(params.virsorter)} 
     else { download_virsorter_db(); virsorter_db = download_virsorter_db.out }
