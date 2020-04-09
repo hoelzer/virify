@@ -42,6 +42,8 @@ process metaGetDB {
     """
     wget ftp://ftp.ebi.ac.uk/pub/databases/metagenomics/viral-pipeline/Additional_data_vpHMMs_v2.xlsx
     generate_vphmm_object.py -x Additional_data_vpHMMs_v2.xlsx -o Additional_data_vpHMMs.dict
+#    wget ftp://ftp.ebi.ac.uk/pub/databases/metagenomics/viral-pipeline/Additional_data_vpHMMs.xlsx
+#    generate_vphmm_object.py -x Additional_data_vpHMMs.xlsx -o Additional_data_vpHMMs.dict
     """
 }
 
