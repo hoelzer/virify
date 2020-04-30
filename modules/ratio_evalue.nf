@@ -1,6 +1,6 @@
 process ratio_evalue {
       errorStrategy { task.exitStatus = 1 ? 'ignore' :  'terminate' }
-      //publishDir "${params.output}/${name}/", mode: 'copy', pattern: "${set_name}_modified_informative.tsv"
+      publishDir "${params.output}/${name}/ratio_evalue_tables", mode: 'copy', pattern: "${set_name}_modified_informative.tsv"
       label 'ratio_evalue'
 
     input:
@@ -40,8 +40,11 @@ process metaGetDB {
     
     shell:
     """
+    # v2 of metadata file
 #    wget ftp://ftp.ebi.ac.uk/pub/databases/metagenomics/viral-pipeline/Additional_data_vpHMMs_v2.xlsx
 #    generate_vphmm_object.py -x Additional_data_vpHMMs_v2.xlsx -o Additional_data_vpHMMs.dict
+
+    # v1 of metadata file
     wget ftp://ftp.ebi.ac.uk/pub/databases/metagenomics/viral-pipeline/Additional_data_vpHMMs.xlsx
     generate_vphmm_object.py -x Additional_data_vpHMMs.xlsx -o Additional_data_vpHMMs.dict
     """
