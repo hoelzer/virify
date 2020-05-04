@@ -4,6 +4,8 @@
 
 Email: hoelzer.martin@gmail.com
 
+__This repository is now integrated into the EBI repository of the VIRify pipeline [EBI VIRify pipeline](https://github.com/EBI-Metagenomics/emg-virus-pipeline) and will not further maintained in this location.__
+
 # VIRify
 
 ![Sankey plot](figures/sankey.png)
