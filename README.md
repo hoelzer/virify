@@ -4,7 +4,7 @@
 
 Email: hoelzer.martin@gmail.com
 
-__This repository is now integrated into the EBI repository of the [VIRify pipeline](https://github.com/EBI-Metagenomics/emg-virus-pipeline) and will not be further maintained in this spot.__
+__2020-05-04: This repository is now integrated into the EBI repository of the [VIRify pipeline](https://github.com/EBI-Metagenomics/emg-viral-pipeline) and will not be further maintained in this spot.__
 
 # VIRify
 
